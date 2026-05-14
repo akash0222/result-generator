@@ -50,6 +50,20 @@ function Navbar() {
   Upload
 </Link>
 
+<Link
+  to="/ranklist"
+  className="text-yellow-600 font-semibold"
+>
+  Rank List
+</Link>
+
+<Link
+  to="/cgpa"
+  className="text-pink-600 font-semibold"
+>
+  CGPA
+</Link>
+
       </div>
 
     </nav>
