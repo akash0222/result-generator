@@ -1,26 +1,76 @@
 import jsPDF from 'jspdf'
 import autoTable from 'jspdf-autotable'
 
-export const generatePDF = (student) => {
+export const generatePDF = (
+  student,
+  marks,
+  sgpa
+) => {
+
   const doc = new jsPDF()
 
-  doc.setFontSize(18)
-  doc.text('GRADE CARD', 80, 20)
+  // TITLE
+  doc.setFontSize(20)
 
+  doc.text(
+    'GRADE CARD',
+    80,
+    20
+  )
+
+  // STUDENT DETAILS
   doc.setFontSize(12)
 
-  doc.text(`Name: ${student.name}`, 20, 40)
-  doc.text(`Roll: ${student.roll}`, 20, 50)
+  doc.text(
+    `Name: ${student.name}`,
+    20,
+    40
+  )
 
+  doc.text(
+    `Roll Number: ${student.roll}`,
+    20,
+    50
+  )
+
+  doc.text(
+    `Course: ${student.course}`,
+    20,
+    60
+  )
+
+  // TABLE
   autoTable(doc, {
-    startY: 70,
-    head: [['Subject', 'Marks', 'Grade']],
-    body: student.subjects.map((sub) => [
-      sub.name,
-      sub.marks,
-      sub.grade
+    startY: 80,
+
+    head: [[
+      'Subject',
+      'Internal',
+      'Midterm',
+      'Endterm',
+      'Total',
+      'Grade'
+    ]],
+
+    body: marks.map((mark) => [
+      mark.subject,
+      mark.internal,
+      mark.midterm,
+      mark.endterm,
+      mark.total,
+      mark.grade
     ])
   })
 
-  doc.save(`${student.roll}.pdf`)
+  // SGPA
+  doc.text(
+    `SGPA: ${sgpa}`,
+    20,
+    doc.lastAutoTable.finalY + 20
+  )
+
+  // SAVE PDF
+  doc.save(
+    `${student.roll}_GradeCard.pdf`
+  )
 }
