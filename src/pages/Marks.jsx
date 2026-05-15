@@ -1,4 +1,6 @@
 import { useState, useEffect } from 'react'
+import axios from 'axios'
+
 import {
   calculateMean,
   calculateSD,
@@ -20,49 +22,77 @@ function Marks() {
     endterm: ''
   })
 
-  // LOAD STUDENTS
-  useEffect(() => {
-    const savedStudents =
-      localStorage.getItem('students')
+  // FETCH STUDENTS
+  const fetchStudents = async () => {
 
-    if (savedStudents) {
-      setStudents(JSON.parse(savedStudents))
+    try {
+
+      const res =
+        await axios.get(
+          'http://localhost:5000/api/students'
+        )
+
+      setStudents(res.data)
+
+    } catch (error) {
+
+      console.log(error)
     }
-  }, [])
+  }
 
-  // LOAD SUBJECTS
-  useEffect(() => {
-    const savedSubjects =
-      localStorage.getItem('subjects')
+  // FETCH SUBJECTS
+  const fetchSubjects = async () => {
 
-    if (savedSubjects) {
-      setSubjects(JSON.parse(savedSubjects))
+    try {
+
+      const res =
+        await axios.get(
+          'http://localhost:5000/api/subjects'
+        )
+
+      setSubjects(res.data)
+
+    } catch (error) {
+
+      console.log(error)
     }
-  }, [])
+  }
 
-  // LOAD MARKS
+  // LOAD DATA
   useEffect(() => {
+
+    fetchStudents()
+    fetchSubjects()
+
     const savedMarks =
       localStorage.getItem('marks')
 
     if (savedMarks) {
-      setMarksData(JSON.parse(savedMarks))
+
+      setMarksData(
+        JSON.parse(savedMarks)
+      )
     }
+
   }, [])
 
   // SAVE MARKS
   useEffect(() => {
+
     localStorage.setItem(
       'marks',
       JSON.stringify(marksData)
     )
+
   }, [marksData])
 
   // HANDLE INPUT
   const handleChange = (e) => {
+
     setFormData({
       ...formData,
-      [e.target.name]: e.target.value
+      [e.target.name]:
+        e.target.value
     })
   }
 
@@ -76,49 +106,50 @@ function Marks() {
     )
   }
 
-  // GRADE LOGIC
-  const calculateGrade = (total) => {
-
-    if (total >= 90) return 'A+'
-    if (total >= 80) return 'A'
-    if (total >= 70) return 'B+'
-    if (total >= 60) return 'B'
-    if (total >= 50) return 'C'
-
-    return 'F'
-  }
-
   // SUBMIT MARKS
   const handleSubmit = (e) => {
+
     e.preventDefault()
 
-    const total = calculateTotal()
+    const total =
+      calculateTotal()
 
-    // TEMP DATA INCLUDING CURRENT MARK
-const tempMarks = [
-  ...marksData,
-  { total }
-]
+    // TEMP DATA
+    const tempMarks = [
+      ...marksData,
+      { total }
+    ]
 
-// CALCULATE MEAN
-const mean =
-  calculateMean(tempMarks)
+    // MEAN
+    const mean =
+      calculateMean(tempMarks)
 
-// CALCULATE SD
-const sd =
-  calculateSD(tempMarks, mean)
+    // SD
+    const sd =
+      calculateSD(
+        tempMarks,
+        mean
+      )
 
-// RELATIVE GRADE
-const grade =
-  getRelativeGrade(total, mean, sd) 
+    // RELATIVE GRADE
+    const grade =
+      getRelativeGrade(
+        total,
+        mean,
+        sd
+      )
 
+    // NEW MARK ENTRY
     const newMarks = {
       ...formData,
       total,
       grade
     }
 
-    setMarksData([...marksData, newMarks])
+    setMarksData([
+      ...marksData,
+      newMarks
+    ])
 
     // RESET FORM
     setFormData({
@@ -134,12 +165,15 @@ const grade =
   const deleteMarks = (index) => {
 
     const updated =
-      marksData.filter((_, i) => i !== index)
+      marksData.filter(
+        (_, i) => i !== index
+      )
 
     setMarksData(updated)
   }
 
   return (
+
     <div className="min-h-screen bg-gray-100 p-6">
 
       <h1 className="text-4xl font-bold text-purple-600 mb-6">
@@ -167,10 +201,10 @@ const grade =
               Select Student
             </option>
 
-            {students.map((student, index) => (
+            {students.map((student) => (
 
               <option
-                key={index}
+                key={student._id}
                 value={student.roll}
               >
                 {student.roll}
@@ -193,13 +227,13 @@ const grade =
               Select Subject
             </option>
 
-            {subjects.map((subject, index) => (
+            {subjects.map((subject) => (
 
               <option
-                key={index}
-                value={subject.subject}
+                key={subject._id}
+                value={subject.code}
               >
-                {subject.subject}
+                {subject.name}
               </option>
 
             ))}
@@ -334,7 +368,9 @@ const grade =
                 <td className="p-4">
 
                   <button
-                    onClick={() => deleteMarks(index)}
+                    onClick={() =>
+                      deleteMarks(index)
+                    }
                     className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg"
                   >
                     Delete

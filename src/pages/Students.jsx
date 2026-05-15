@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import axios from 'axios'
 
 function Students() {
 
@@ -12,27 +13,36 @@ function Students() {
     course: ''
   })
 
-  const [editIndex, setEditIndex] = useState(null)
+  const [editId, setEditId] = useState(null)
 
-  // LOAD LOCAL STORAGE
+  // FETCH STUDENTS
   useEffect(() => {
-    const savedStudents = localStorage.getItem('students')
 
-    if (savedStudents) {
-      setStudents(JSON.parse(savedStudents))
-    }
+    fetchStudents()
+
   }, [])
 
-  // SAVE LOCAL STORAGE
-  useEffect(() => {
-    localStorage.setItem(
-      'students',
-      JSON.stringify(students)
-    )
-  }, [students])
+  // GET ALL STUDENTS
+  const fetchStudents = async () => {
+
+    try {
+
+      const res =
+        await axios.get(
+          'http://localhost:5000/api/students'
+        )
+
+      setStudents(res.data)
+
+    } catch (error) {
+
+      console.log(error)
+    }
+  }
 
   // HANDLE INPUT
   const handleChange = (e) => {
+
     setFormData({
       ...formData,
       [e.target.name]: e.target.value
@@ -40,71 +50,117 @@ function Students() {
   }
 
   // ADD OR UPDATE STUDENT
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
+
     e.preventDefault()
 
-    // CHECK DUPLICATE ROLL NUMBER
-    const exists = students.find(
-      (student, index) =>
-        student.roll === formData.roll &&
-        index !== editIndex
-    )
+    try {
 
-    if (exists) {
-      alert('Roll number already exists')
-      return
+      // UPDATE STUDENT
+      if (editId) {
+
+        const res =
+          await axios.put(
+            `http://localhost:5000/api/students/${editId}`,
+            formData
+          )
+
+        const updatedStudents =
+          students.map((student) =>
+
+            student._id === editId
+              ? res.data
+              : student
+          )
+
+        setStudents(updatedStudents)
+
+      } else {
+
+        // ADD STUDENT
+        const res =
+          await axios.post(
+            'http://localhost:5000/api/students',
+            formData
+          )
+
+        setStudents([
+          ...students,
+          res.data
+        ])
+      }
+
+      // RESET FORM
+      setFormData({
+        name: '',
+        roll: '',
+        course: ''
+      })
+
+      setEditId(null)
+
+    } catch (error) {
+
+      alert(
+        error.response?.data?.message ||
+        error.message
+ 
+      )
     }
-
-    // UPDATE STUDENT
-    if (editIndex !== null) {
-
-      const updatedStudents = [...students]
-
-      updatedStudents[editIndex] = formData
-
-      setStudents(updatedStudents)
-
-      setEditIndex(null)
-
-    } else {
-
-      // ADD NEW STUDENT
-      setStudents([...students, formData])
-
-    }
-
-    // RESET FORM
-    setFormData({
-      name: '',
-      roll: '',
-      course: ''
-    })
   }
 
   // DELETE STUDENT
-  const deleteStudent = (index) => {
+  const deleteStudent = async (id) => {
 
-    const updatedStudents =
-      students.filter((_, i) => i !== index)
+    try {
 
-    setStudents(updatedStudents)
+      await axios.delete(
+        `http://localhost:5000/api/students/${id}`
+      )
+
+      const updatedStudents =
+        students.filter(
+          (student) =>
+            student._id !== id
+        )
+
+      setStudents(updatedStudents)
+
+    } catch (error) {
+
+      console.log(error)
+    }
   }
 
   // EDIT STUDENT
-  const editStudent = (index) => {
+  const editStudent = (student) => {
 
-    setFormData(students[index])
+    setFormData({
+      name: student.name,
+      roll: student.roll,
+      course: student.course
+    })
 
-    setEditIndex(index)
+    setEditId(student._id)
   }
 
   // SEARCH FILTER
-  const filteredStudents = students.filter((student) =>
-    student.name.toLowerCase().includes(search.toLowerCase()) ||
-    student.roll.toLowerCase().includes(search.toLowerCase())
-  )
+  const filteredStudents =
+    students.filter((student) =>
+
+      student.name
+        .toLowerCase()
+        .includes(search.toLowerCase())
+
+      ||
+
+      student.roll
+        .toLowerCase()
+        .includes(search.toLowerCase())
+    )
 
   return (
+
     <div className="min-h-screen bg-gray-100 p-6">
 
       <h1 className="text-4xl font-bold text-blue-600 mb-6">
@@ -119,6 +175,7 @@ function Students() {
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
 
+          {/* NAME */}
           <input
             type="text"
             name="name"
@@ -129,6 +186,7 @@ function Students() {
             required
           />
 
+          {/* ROLL */}
           <input
             type="text"
             name="roll"
@@ -139,6 +197,7 @@ function Students() {
             required
           />
 
+          {/* COURSE */}
           <input
             type="text"
             name="course"
@@ -151,16 +210,19 @@ function Students() {
 
         </div>
 
+        {/* BUTTON */}
         <button
           className={`mt-4 text-white px-6 py-3 rounded-lg ${
-            editIndex !== null
+            editId
               ? 'bg-yellow-500 hover:bg-yellow-600'
               : 'bg-blue-600 hover:bg-blue-700'
           }`}
         >
-          {editIndex !== null
+
+          {editId
             ? 'Update Student'
             : 'Add Student'}
+
         </button>
 
       </form>
@@ -168,10 +230,12 @@ function Students() {
       {/* SEARCH */}
       <input
         type="text"
-        placeholder="Search by name or roll number"
+        placeholder="Search Student"
         value={search}
-        onChange={(e) => setSearch(e.target.value)}
-        className="w-full mb-4 border p-3 rounded-lg"
+        onChange={(e) =>
+          setSearch(e.target.value)
+        }
+        className="w-full border p-3 rounded-lg mb-4"
       />
 
       {/* TABLE */}
@@ -182,10 +246,23 @@ function Students() {
           <thead className="bg-gray-200">
 
             <tr>
-              <th className="p-4 text-left">Name</th>
-              <th className="p-4 text-left">Roll</th>
-              <th className="p-4 text-left">Course</th>
-              <th className="p-4 text-left">Actions</th>
+
+              <th className="p-4 text-left">
+                Name
+              </th>
+
+              <th className="p-4 text-left">
+                Roll
+              </th>
+
+              <th className="p-4 text-left">
+                Course
+              </th>
+
+              <th className="p-4 text-left">
+                Actions
+              </th>
+
             </tr>
 
           </thead>
@@ -195,20 +272,22 @@ function Students() {
             {filteredStudents.length === 0 ? (
 
               <tr>
+
                 <td
                   colSpan="4"
                   className="p-6 text-center text-gray-500"
                 >
                   No students found
                 </td>
+
               </tr>
 
             ) : (
 
-              filteredStudents.map((student, index) => (
+              filteredStudents.map((student) => (
 
                 <tr
-                  key={index}
+                  key={student._id}
                   className="border-t hover:bg-gray-50"
                 >
 
@@ -226,15 +305,21 @@ function Students() {
 
                   <td className="p-4 flex gap-2">
 
+                    {/* EDIT */}
                     <button
-                      onClick={() => editStudent(index)}
+                      onClick={() =>
+                        editStudent(student)
+                      }
                       className="bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-2 rounded-lg"
                     >
                       Edit
                     </button>
 
+                    {/* DELETE */}
                     <button
-                      onClick={() => deleteStudent(index)}
+                      onClick={() =>
+                        deleteStudent(student._id)
+                      }
                       className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg"
                     >
                       Delete

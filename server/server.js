@@ -1,0 +1,85 @@
+import express from 'express'
+import cors from 'cors'
+import dotenv from 'dotenv'
+
+import connectDB from './config/db.js'
+
+import studentRoutes
+from './routes/studentRoutes.js'
+
+import marksRoutes
+from './routes/marksRoutes.js'
+
+import resultRoutes
+from './routes/resultRoutes.js'
+
+import subjectRoutes
+from './routes/subjectRoutes.js'
+
+import publishRoutes from './routes/publishRoutes.js'
+
+import emailRoutes from './routes/emailRoutes.js'
+
+dotenv.config()
+
+// DATABASE
+connectDB()
+
+const app = express()
+
+// MIDDLEWARE
+app.use(cors())
+app.use(express.json())
+
+// ROUTES
+
+// STUDENTS
+app.use(
+  '/api/students',
+  studentRoutes
+)
+
+// SUBJECTS
+app.use(
+  '/api/subjects',
+  subjectRoutes
+)
+
+// MARKS
+app.use(
+  '/api/marks',
+  marksRoutes
+)
+
+// RESULTS
+app.use(
+  '/api/results',
+  resultRoutes
+)
+
+// publishResult
+app.use(
+  '/api/publish',
+  publishRoutes
+)
+
+app.use(
+  '/api/email',
+  emailRoutes
+)
+
+// TEST ROUTE
+app.get('/', (req, res) => {
+
+  res.send('API Running...')
+})
+
+const PORT =
+  process.env.PORT || 5000
+
+app.listen(PORT, () => {
+
+  console.log(
+    `Server running on port ${PORT}`
+  )
+})

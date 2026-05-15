@@ -2,13 +2,13 @@ import { useState } from 'react'
 import * as XLSX from 'xlsx'
 import axios from 'axios'
 
-function Upload() {
+function UploadMarks() {
 
   const [data, setData] =
     useState([])
 
-  // READ EXCEL
-  const handleFileUpload = async (
+  // READ FILE
+  const handleFileUpload = (
     e
   ) => {
 
@@ -18,7 +18,7 @@ function Upload() {
     const reader =
       new FileReader()
 
-    reader.onload = async (
+    reader.onload = (
       event
     ) => {
 
@@ -48,25 +48,27 @@ function Upload() {
     reader.readAsBinaryString(file)
   }
 
-  // SAVE TO DATABASE
-  const uploadToDatabase = async () => {
+  // SAVE
+  const uploadMarks = async () => {
 
     try {
 
-      for (const student of data) {
+      for (const mark of data) {
 
         await axios.post(
-          'http://localhost:5000/api/students',
+          'http://localhost:5000/api/marks',
           {
-            name: student.name,
-            roll: student.roll,
-            course: student.course
+            roll: mark.roll,
+            subject: mark.subject,
+            internal: mark.internal,
+            midterm: mark.midterm,
+            endterm: mark.endterm
           }
         )
       }
 
       alert(
-        'Excel data uploaded successfully'
+        'Marks uploaded successfully'
       )
 
     } catch (error) {
@@ -84,11 +86,10 @@ function Upload() {
 
     <div className="min-h-screen bg-gray-100 p-6">
 
-      <h1 className="text-4xl font-bold text-orange-600 mb-6">
-        Excel Upload
+      <h1 className="text-4xl font-bold text-purple-600 mb-6">
+        Upload Marks
       </h1>
 
-      {/* UPLOAD BOX */}
       <div className="bg-white p-6 rounded-xl shadow mb-6">
 
         <input
@@ -99,15 +100,15 @@ function Upload() {
         />
 
         <button
-          onClick={uploadToDatabase}
-          className="bg-orange-600 text-white px-6 py-3 rounded-lg"
+          onClick={uploadMarks}
+          className="bg-purple-600 text-white px-6 py-3 rounded-lg"
         >
-          Upload to Database
+          Upload Marks
         </button>
 
       </div>
 
-      {/* PREVIEW TABLE */}
+      {/* PREVIEW */}
       <div className="bg-white rounded-xl shadow overflow-hidden">
 
         <table className="w-full">
@@ -116,16 +117,24 @@ function Upload() {
 
             <tr>
 
-              <th className="p-4 text-left">
-                Name
-              </th>
-
-              <th className="p-4 text-left">
+              <th className="p-4">
                 Roll
               </th>
 
-              <th className="p-4 text-left">
-                Course
+              <th className="p-4">
+                Subject
+              </th>
+
+              <th className="p-4">
+                Internal
+              </th>
+
+              <th className="p-4">
+                Midterm
+              </th>
+
+              <th className="p-4">
+                Endterm
               </th>
 
             </tr>
@@ -134,7 +143,7 @@ function Upload() {
 
           <tbody>
 
-            {data.map((student, index) => (
+            {data.map((mark, index) => (
 
               <tr
                 key={index}
@@ -142,15 +151,23 @@ function Upload() {
               >
 
                 <td className="p-4">
-                  {student.name}
+                  {mark.roll}
                 </td>
 
                 <td className="p-4">
-                  {student.roll}
+                  {mark.subject}
                 </td>
 
                 <td className="p-4">
-                  {student.course}
+                  {mark.internal}
+                </td>
+
+                <td className="p-4">
+                  {mark.midterm}
+                </td>
+
+                <td className="p-4">
+                  {mark.endterm}
                 </td>
 
               </tr>
@@ -167,4 +184,4 @@ function Upload() {
   )
 }
 
-export default Upload
+export default UploadMarks
