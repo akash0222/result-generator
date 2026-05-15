@@ -14,11 +14,22 @@ const markSchema =
     },
 
     internal: Number,
+
     midterm: Number,
+
     endterm: Number,
 
     total: Number,
-    grade: String
+
+    grade: String,
+
+    gradingMode: {
+
+      type: String,
+
+      default:
+        'absolute'
+    }
 
   })
 

@@ -1,6 +1,17 @@
 import Mark from '../models/Mark.js'
 
-// GET MARKS
+import getAbsoluteGrade
+from '../utils/absoluteGrading.js'
+
+import {
+
+  calculateMean,
+  calculateSD,
+  getRelativeGrade
+
+} from '../utils/relativeGrading.js'
+
+// GET ALL MARKS
 export const getMarks =
   async (req, res) => {
 
@@ -14,49 +25,100 @@ export const getMarks =
     } catch (error) {
 
       res.status(500).json({
-        message: error.message
+
+        message:
+          error.message
       })
     }
   }
 
-// ADD MARK
-export const addMark =
+// ADD MARKS
+export const addMarks =
   async (req, res) => {
 
     try {
 
       const {
+
         roll,
         subject,
         internal,
         midterm,
-        endterm
+        endterm,
+        gradingMode
+
       } = req.body
 
+      // TOTAL
       const total =
+
         Number(internal) +
         Number(midterm) +
         Number(endterm)
 
-      let grade = 'F'
+      let grade = ''
 
-      if (total >= 90)
-        grade = 'A+'
+      // =========================
+      // ABSOLUTE GRADING
+      // =========================
+      if (
+        gradingMode ===
+        'absolute'
+      ) {
 
-      else if (total >= 80)
-        grade = 'A'
+        grade =
+          getAbsoluteGrade(
+            total
+          )
+      }
 
-      else if (total >= 70)
-        grade = 'B+'
+      // =========================
+      // RELATIVE GRADING
+      // SUBJECT-WISE
+      // =========================
+      else {
 
-      else if (total >= 60)
-        grade = 'B'
+        // SAME SUBJECT MARKS
+        const subjectMarks =
+          await Mark.find({
 
-      else if (total >= 50)
-        grade = 'C'
+            subject
+          })
 
+        // GET TOTALS
+        const totals =
+          subjectMarks.map(
+            (m) => m.total
+          )
+
+        // ADD CURRENT TOTAL
+        totals.push(total)
+
+        // MEAN
+        const mean =
+          calculateMean(
+            totals
+          )
+
+        // STANDARD DEVIATION
+        const sd =
+          calculateSD(
+            totals,
+            mean
+          )
+
+        // RELATIVE GRADE
+        grade =
+          getRelativeGrade(
+            total,
+            mean,
+            sd
+          )
+      }
+
+      // CREATE MARK ENTRY
       const mark =
-        await Mark.create({
+        new Mark({
 
           roll,
           subject,
@@ -64,15 +126,62 @@ export const addMark =
           midterm,
           endterm,
           total,
-          grade
+          grade,
+          gradingMode
         })
 
-      res.status(201).json(mark)
+      // SAVE
+      const savedMark =
+        await mark.save()
+
+      res.status(201).json(
+        savedMark
+      )
 
     } catch (error) {
 
       res.status(500).json({
-        message: error.message
+
+        message:
+          error.message
+      })
+    }
+  }
+
+// DELETE MARK
+export const deleteMark =
+  async (req, res) => {
+
+    try {
+
+      const mark =
+        await Mark.findById(
+          req.params.id
+        )
+
+      if (!mark) {
+
+        return res.status(404).json({
+
+          message:
+            'Mark not found'
+        })
+      }
+
+      await mark.deleteOne()
+
+      res.json({
+
+        message:
+          'Mark deleted'
+      })
+
+    } catch (error) {
+
+      res.status(500).json({
+
+        message:
+          error.message
       })
     }
   }

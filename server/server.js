@@ -20,6 +20,8 @@ import publishRoutes from './routes/publishRoutes.js'
 
 import emailRoutes from './routes/emailRoutes.js'
 
+import facultyRoutes from './routes/facultyRoutes.js'
+
 dotenv.config()
 
 // DATABASE
@@ -66,6 +68,11 @@ app.use(
 app.use(
   '/api/email',
   emailRoutes
+)
+
+app.use(
+  '/api/faculty',
+  facultyRoutes
 )
 
 // TEST ROUTE
