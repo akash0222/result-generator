@@ -4,11 +4,18 @@ import API_URL from '../config'
 
 function Dashboard() {
 
-  const [students, setStudents] = useState([])
-  const [subjects, setSubjects] = useState([])
-  const [marks, setMarks] = useState([])
+  const [students, setStudents] =
+    useState([])
 
-  // LOAD API DATA
+  const [subjects, setSubjects] =
+    useState([])
+
+  const [marks, setMarks] =
+    useState([])
+
+  // =========================
+  // LOAD DATA
+  // =========================
   useEffect(() => {
 
     fetchStudents()
@@ -17,64 +24,115 @@ function Dashboard() {
 
   }, [])
 
+  // =========================
+  // TOKEN
+  // =========================
+  const token =
+    localStorage.getItem('token')
+
+  // =========================
   // FETCH STUDENTS
+  // =========================
   const fetchStudents = async () => {
 
     try {
 
       const res =
         await axios.get(
-          `${API_URL}/api/students`
+
+          `${API_URL}/api/students`,
+
+          {
+            headers: {
+              Authorization:
+                `Bearer ${token}`
+            }
+          }
         )
 
       setStudents(res.data)
 
     } catch (error) {
 
-      console.log(error)
+      console.log(
+        'Students Error:',
+        error.response?.data ||
+        error.message
+      )
     }
   }
 
+  // =========================
   // FETCH SUBJECTS
+  // =========================
   const fetchSubjects = async () => {
 
     try {
 
       const res =
         await axios.get(
-          `${API_URL}/api/subjects`
+
+          `${API_URL}/api/subjects`,
+
+          {
+            headers: {
+              Authorization:
+                `Bearer ${token}`
+            }
+          }
         )
 
       setSubjects(res.data)
 
     } catch (error) {
 
-      console.log(error)
+      console.log(
+        'Subjects Error:',
+        error.response?.data ||
+        error.message
+      )
     }
   }
 
+  // =========================
   // FETCH MARKS
+  // =========================
   const fetchMarks = async () => {
 
     try {
 
       const res =
         await axios.get(
-          `${API_URL}/api/marks`
+
+          `${API_URL}/api/marks`,
+
+          {
+            headers: {
+              Authorization:
+                `Bearer ${token}`
+            }
+          }
         )
 
       setMarks(res.data)
 
     } catch (error) {
 
-      console.log(error)
+      console.log(
+        'Marks Error:',
+        error.response?.data ||
+        error.message
+      )
     }
   }
 
+  // =========================
   // GPA CALCULATION
+  // =========================
   const calculateAverageSGPA = () => {
 
     if (marks.length === 0) {
+
       return 0
     }
 
@@ -107,7 +165,6 @@ function Dashboard() {
         default:
           total += 0
       }
-
     })
 
     return (
@@ -115,13 +172,17 @@ function Dashboard() {
     ).toFixed(2)
   }
 
-  // FAILED
+  // =========================
+  // FAILED STUDENTS
+  // =========================
   const failedStudents =
     marks.filter(
       (m) => m.grade === 'F'
     ).length
 
-  // PASS %
+  // =========================
+  // PASS PERCENTAGE
+  // =========================
   const passPercentage =
     marks.length > 0
 
@@ -140,10 +201,12 @@ function Dashboard() {
 
     <div className="min-h-screen bg-gray-100 p-6">
 
+      {/* HEADER */}
       <h1 className="text-5xl font-bold text-blue-600 mb-8">
         Dashboard
       </h1>
 
+      {/* TOP CARDS */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
 
         {/* STUDENTS */}
