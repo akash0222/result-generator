@@ -1,21 +1,31 @@
 import { useState, useEffect } from 'react'
+
 import axios from 'axios'
+
 import API_URL from '../config'
 
 function Subjects() {
 
-  const [subjects, setSubjects] = useState([])
+  const [subjects, setSubjects] =
+    useState([])
 
-  const [search, setSearch] = useState('')
+  const [search, setSearch] =
+    useState('')
 
-  const [editId, setEditId] = useState(null)
+  const [editId, setEditId] =
+    useState(null)
 
-  const [formData, setFormData] = useState({
-    subject: '',
-    code: '',
-    credits: '',
-    semester: ''
-  })
+  const [formData, setFormData] =
+    useState({
+
+      name: '',
+
+      code: '',
+
+      credits: '',
+
+      semester: ''
+    })
 
   // LOAD SUBJECTS
   useEffect(() => {
@@ -25,121 +35,158 @@ function Subjects() {
   }, [])
 
   // FETCH SUBJECTS
-  const fetchSubjects = async () => {
+  const fetchSubjects =
+    async () => {
 
-    try {
+      try {
 
-      const res =
-        await axios.get(
-          `${API_URL}/api/subjects`
+        const res =
+          await axios.get(
+            `${API_URL}/api/subjects`
+          )
+
+        setSubjects(
+          res.data
         )
 
-      setSubjects(res.data)
+      } catch (error) {
 
-    } catch (error) {
-
-      console.log(error)
+        console.log(error)
+      }
     }
-  }
 
   // HANDLE INPUT
-  const handleChange = (e) => {
+  const handleChange =
+    (e) => {
 
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value
-    })
-
-  }
-
-  // ADD / UPDATE
-  const handleSubmit = async (e) => {
-
-    e.preventDefault()
-
-    try {
-
-      // UPDATE
-      if (editId) {
-
-        await axios.put(
-          `${API_URL}/api/subjects/${editId}`,
-          formData
-        )
-
-        setEditId(null)
-
-      } else {
-
-        // ADD
-        await axios.post(
-          `${API_URL}/api/subjects`,
-          formData
-        )
-
-      }
-
-      // RESET
       setFormData({
-        subject: '',
-        code: '',
-        credits: '',
-        semester: ''
+
+        ...formData,
+
+        [e.target.name]:
+          e.target.value
+      })
+    }
+
+  // ADD / UPDATE SUBJECT
+  const handleSubmit =
+    async (e) => {
+
+      e.preventDefault()
+
+      try {
+
+        // UPDATE
+        if (editId) {
+
+          await axios.put(
+
+            `${API_URL}/api/subjects/${editId}`,
+
+            formData
+          )
+
+          setEditId(null)
+
+        } else {
+
+          // ADD
+          await axios.post(
+
+            `${API_URL}/api/subjects`,
+
+            formData
+          )
+        }
+
+        // RESET
+        setFormData({
+
+          name: '',
+
+          code: '',
+
+          credits: '',
+
+          semester: ''
+        })
+
+        // REFRESH
+        fetchSubjects()
+
+      } catch (error) {
+
+        console.log(error)
+
+        alert(
+
+          error.response?.data?.message ||
+
+          'Something went wrong'
+        )
+      }
+    }
+
+  // DELETE SUBJECT
+  const deleteSubject =
+    async (id) => {
+
+      try {
+
+        await axios.delete(
+
+          `${API_URL}/api/subjects/${id}`
+        )
+
+        fetchSubjects()
+
+      } catch (error) {
+
+        console.log(error)
+      }
+    }
+
+  // EDIT SUBJECT
+  const editSubject =
+    (subject) => {
+
+      setFormData({
+
+        name:
+          subject.name,
+
+        code:
+          subject.code,
+
+        credits:
+          subject.credits,
+
+        semester:
+          subject.semester
       })
 
-      fetchSubjects()
-
-    } catch (error) {
-
-      console.log(error)
-
-      alert('Something went wrong')
-    }
-  }
-
-  // DELETE
-  const deleteSubject = async (id) => {
-
-    try {
-
-      await axios.delete(
-        `${API_URL}/api/subjects/${id}`
+      setEditId(
+        subject._id
       )
-
-      fetchSubjects()
-
-    } catch (error) {
-
-      console.log(error)
     }
-  }
-
-  // EDIT
-  const editSubject = (subject) => {
-
-    setFormData({
-      subject: subject.subject,
-      code: subject.code,
-      credits: subject.credits,
-      semester: subject.semester
-    })
-
-    setEditId(subject._id)
-  }
 
   // SEARCH FILTER
   const filteredSubjects =
     subjects.filter((subject) =>
 
-      subject.subject
-        .toLowerCase()
-        .includes(search.toLowerCase())
+      subject.name
+        ?.toLowerCase()
+        .includes(
+          search.toLowerCase()
+        )
 
       ||
 
       subject.code
-        .toLowerCase()
-        .includes(search.toLowerCase())
+        ?.toLowerCase()
+        .includes(
+          search.toLowerCase()
+        )
     )
 
   return (
@@ -152,76 +199,123 @@ function Subjects() {
 
       {/* FORM */}
       <form
+
         onSubmit={handleSubmit}
+
         className="bg-white p-6 rounded-xl shadow mb-6"
       >
 
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
 
+          {/* SUBJECT NAME */}
           <input
+
             type="text"
-            name="subject"
+
+            name="name"
+
             placeholder="Subject Name"
-            value={formData.subject}
+
+            value={formData.name}
+
             onChange={handleChange}
+
             className="border p-3 rounded-lg"
+
             required
           />
 
+          {/* SUBJECT CODE */}
           <input
+
             type="text"
+
             name="code"
+
             placeholder="Subject Code"
+
             value={formData.code}
+
             onChange={handleChange}
+
             className="border p-3 rounded-lg"
+
             required
           />
 
+          {/* CREDITS */}
           <input
+
             type="number"
+
             name="credits"
+
             placeholder="Credits"
+
             value={formData.credits}
+
             onChange={handleChange}
+
             className="border p-3 rounded-lg"
+
             required
           />
 
+          {/* SEMESTER */}
           <input
+
             type="number"
+
             name="semester"
+
             placeholder="Semester"
+
             value={formData.semester}
+
             onChange={handleChange}
+
             className="border p-3 rounded-lg"
+
             required
           />
 
         </div>
 
+        {/* BUTTON */}
         <button
+
           className={`mt-4 text-white px-6 py-3 rounded-lg ${
             editId
               ? 'bg-yellow-500 hover:bg-yellow-600'
               : 'bg-green-600 hover:bg-green-700'
           }`}
         >
+
           {editId
+
             ? 'Update Subject'
+
             : 'Add Subject'}
+
         </button>
 
       </form>
 
       {/* SEARCH */}
       <input
+
         type="text"
+
         placeholder="Search by subject or code"
+
         value={search}
+
         onChange={(e) =>
-          setSearch(e.target.value)
+          setSearch(
+            e.target.value
+          )
         }
+
         className="w-full mb-4 border p-3 rounded-lg"
       />
 
@@ -265,7 +359,9 @@ function Subjects() {
               <tr>
 
                 <td
+
                   colSpan="5"
+
                   className="p-6 text-center text-gray-500"
                 >
                   No subjects found
@@ -278,12 +374,14 @@ function Subjects() {
               filteredSubjects.map((subject) => (
 
                 <tr
+
                   key={subject._id}
+
                   className="border-t hover:bg-gray-50"
                 >
 
                   <td className="p-4">
-                    {subject.subject}
+                    {subject.name}
                   </td>
 
                   <td className="p-4">
@@ -300,19 +398,27 @@ function Subjects() {
 
                   <td className="p-4 flex gap-2">
 
+                    {/* EDIT */}
                     <button
+
                       onClick={() =>
                         editSubject(subject)
                       }
+
                       className="bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-2 rounded-lg"
                     >
                       Edit
                     </button>
 
+                    {/* DELETE */}
                     <button
+
                       onClick={() =>
-                        deleteSubject(subject._id)
+                        deleteSubject(
+                          subject._id
+                        )
                       }
+
                       className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg"
                     >
                       Delete
@@ -323,7 +429,6 @@ function Subjects() {
                 </tr>
 
               ))
-
             )}
 
           </tbody>
