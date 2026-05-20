@@ -11,6 +11,7 @@ import subjectRoutes from './routes/subjectRoutes.js'
 import publishRoutes from './routes/publishRoutes.js'
 import emailRoutes from './routes/emailRoutes.js'
 import facultyRoutes from './routes/facultyRoutes.js'
+import authRoutes from './routes/authRoutes.js'
 
 dotenv.config()
 
@@ -19,11 +20,33 @@ connectDB()
 
 const app = express()
 
-// MIDDLEWARE
-app.use(cors())
+// ======================
+// CORS
+// ======================
+app.use(
+
+  cors({
+
+    origin: [
+      'http://localhost:5173',
+      'https://result-generator-git-main-akash-singhs-projects-db9ce447.vercel.app'
+    ],
+
+    credentials: true
+  })
+)
+
+// ======================
+// BODY PARSER
+// ======================
 app.use(express.json())
 
+// ======================
 // ROUTES
+// ======================
+
+// AUTH
+app.use('/api/auth', authRoutes)
 
 // STUDENTS
 app.use('/api/students', studentRoutes)
@@ -46,15 +69,40 @@ app.use('/api/email', emailRoutes)
 // FACULTY
 app.use('/api/faculty', facultyRoutes)
 
+// ======================
 // TEST ROUTE
+// ======================
 app.get('/', (req, res) => {
+
   res.send('API Running...')
 })
 
-// PORT
-const PORT = process.env.PORT || 5000
+// ======================
+// ERROR HANDLER
+// ======================
+app.use((err, req, res, next) => {
 
+  console.log(err.stack)
+
+  res.status(500).json({
+
+    message: err.message ||
+      'Server Error'
+  })
+})
+
+// ======================
+// PORT
+// ======================
+const PORT =
+  process.env.PORT || 5000
+
+// ======================
 // START SERVER
+// ======================
 app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`)
+
+  console.log(
+    `Server running on port ${PORT}`
+  )
 })

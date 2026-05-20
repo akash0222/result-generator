@@ -1,8 +1,5 @@
 import { useState, useEffect } from 'react'
-
-import axios from 'axios'
-
-import API_URL from '../config'
+import API from '../utils/axios'
 
 function Subjects() {
 
@@ -15,15 +12,15 @@ function Subjects() {
   const [editId, setEditId] =
     useState(null)
 
+  const [loading, setLoading] =
+    useState(false)
+
   const [formData, setFormData] =
     useState({
 
       name: '',
-
       code: '',
-
       credits: '',
-
       semester: ''
     })
 
@@ -40,18 +37,27 @@ function Subjects() {
 
       try {
 
+        setLoading(true)
+
         const res =
-          await axios.get(
-            `${API_URL}/api/subjects`
+          await API.get(
+            '/api/subjects'
           )
 
-        setSubjects(
-          res.data
-        )
+        setSubjects(res.data)
 
       } catch (error) {
 
         console.log(error)
+
+        alert(
+          error.response?.data?.message ||
+          'Failed to load subjects'
+        )
+
+      } finally {
+
+        setLoading(false)
       }
     }
 
@@ -76,14 +82,20 @@ function Subjects() {
 
       try {
 
+        setLoading(true)
+
         // UPDATE
         if (editId) {
 
-          await axios.put(
+          await API.put(
 
-            `${API_URL}/api/subjects/${editId}`,
+            `/api/subjects/${editId}`,
 
             formData
+          )
+
+          alert(
+            'Subject updated successfully'
           )
 
           setEditId(null)
@@ -91,23 +103,24 @@ function Subjects() {
         } else {
 
           // ADD
-          await axios.post(
+          await API.post(
 
-            `${API_URL}/api/subjects`,
+            '/api/subjects',
 
             formData
           )
+
+          alert(
+            'Subject added successfully'
+          )
         }
 
-        // RESET
+        // RESET FORM
         setFormData({
 
           name: '',
-
           code: '',
-
           credits: '',
-
           semester: ''
         })
 
@@ -124,6 +137,10 @@ function Subjects() {
 
           'Something went wrong'
         )
+
+      } finally {
+
+        setLoading(false)
       }
     }
 
@@ -131,11 +148,24 @@ function Subjects() {
   const deleteSubject =
     async (id) => {
 
+      const confirmDelete =
+        window.confirm(
+          'Are you sure you want to delete this subject?'
+        )
+
+      if (!confirmDelete) return
+
       try {
 
-        await axios.delete(
+        setLoading(true)
 
-          `${API_URL}/api/subjects/${id}`
+        await API.delete(
+
+          `/api/subjects/${id}`
+        )
+
+        alert(
+          'Subject deleted successfully'
         )
 
         fetchSubjects()
@@ -143,6 +173,15 @@ function Subjects() {
       } catch (error) {
 
         console.log(error)
+
+        alert(
+          error.response?.data?.message ||
+          'Delete failed'
+        )
+
+      } finally {
+
+        setLoading(false)
       }
     }
 
@@ -284,6 +323,8 @@ function Subjects() {
         {/* BUTTON */}
         <button
 
+          disabled={loading}
+
           className={`mt-4 text-white px-6 py-3 rounded-lg ${
             editId
               ? 'bg-yellow-500 hover:bg-yellow-600'
@@ -291,11 +332,13 @@ function Subjects() {
           }`}
         >
 
-          {editId
-
-            ? 'Update Subject'
-
-            : 'Add Subject'}
+          {
+            loading
+              ? 'Processing...'
+              : editId
+                ? 'Update Subject'
+                : 'Add Subject'
+          }
 
         </button>
 
@@ -320,7 +363,7 @@ function Subjects() {
       />
 
       {/* TABLE */}
-      <div className="bg-white rounded-xl shadow overflow-hidden">
+      <div className="bg-white rounded-xl shadow overflow-hidden overflow-x-auto">
 
         <table className="w-full">
 
@@ -401,6 +444,8 @@ function Subjects() {
                     {/* EDIT */}
                     <button
 
+                      type="button"
+
                       onClick={() =>
                         editSubject(subject)
                       }
@@ -412,6 +457,8 @@ function Subjects() {
 
                     {/* DELETE */}
                     <button
+
+                      type="button"
 
                       onClick={() =>
                         deleteSubject(
