@@ -30,7 +30,7 @@ function Students() {
 
       const res =
         await axios.get(
-          '${API_URL}/api/students'
+          `${API_URL}/api/students`
         )
 
       setStudents(res.data)
@@ -81,7 +81,7 @@ function Students() {
         // ADD STUDENT
         const res =
           await axios.post(
-            '${API_URL}/api/students',
+            `${API_URL}/api/students`,
             formData
           )
 
