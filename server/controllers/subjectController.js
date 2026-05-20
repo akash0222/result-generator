@@ -1,4 +1,5 @@
-import Subject from '../models/Subject.js'
+import Subject
+from '../models/Subject.js'
 
 // GET SUBJECTS
 export const getSubjects =
@@ -14,7 +15,9 @@ export const getSubjects =
     } catch (error) {
 
       res.status(500).json({
-        message: error.message
+
+        message:
+          error.message
       })
     }
   }
@@ -26,16 +29,21 @@ export const addSubject =
     try {
 
       const {
+
         name,
         code,
-        credits
+        credits,
+        semester
+
       } = req.body
 
       const subject =
         new Subject({
+
           name,
           code,
-          credits
+          credits,
+          semester
         })
 
       const savedSubject =
@@ -47,8 +55,12 @@ export const addSubject =
 
     } catch (error) {
 
+      console.log(error)
+
       res.status(500).json({
-        message: error.message
+
+        message:
+          error.message
       })
     }
   }
@@ -64,6 +76,7 @@ export const deleteSubject =
       )
 
       res.json({
+
         message:
           'Subject deleted'
       })
@@ -71,7 +84,9 @@ export const deleteSubject =
     } catch (error) {
 
       res.status(500).json({
-        message: error.message
+
+        message:
+          error.message
       })
     }
   }

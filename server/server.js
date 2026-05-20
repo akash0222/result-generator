@@ -4,27 +4,17 @@ import dotenv from 'dotenv'
 
 import connectDB from './config/db.js'
 
-import studentRoutes
-from './routes/studentRoutes.js'
-
-import marksRoutes
-from './routes/marksRoutes.js'
-
-import resultRoutes
-from './routes/resultRoutes.js'
-
-import subjectRoutes
-from './routes/subjectRoutes.js'
-
+import studentRoutes from './routes/studentRoutes.js'
+import marksRoutes from './routes/marksRoutes.js'
+import resultRoutes from './routes/resultRoutes.js'
+import subjectRoutes from './routes/subjectRoutes.js'
 import publishRoutes from './routes/publishRoutes.js'
-
 import emailRoutes from './routes/emailRoutes.js'
-
 import facultyRoutes from './routes/facultyRoutes.js'
 
 dotenv.config()
 
-// DATABASE
+// CONNECT DATABASE
 connectDB()
 
 const app = express()
@@ -36,57 +26,35 @@ app.use(express.json())
 // ROUTES
 
 // STUDENTS
-app.use(
-  '/api/students',
-  studentRoutes
-)
+app.use('/api/students', studentRoutes)
 
 // SUBJECTS
-app.use(
-  '/api/subjects',
-  subjectRoutes
-)
+app.use('/api/subjects', subjectRoutes)
 
 // MARKS
-app.use(
-  '/api/marks',
-  marksRoutes
-)
+app.use('/api/marks', marksRoutes)
 
 // RESULTS
-app.use(
-  '/api/results',
-  resultRoutes
-)
+app.use('/api/results', resultRoutes)
 
-// publishResult
-app.use(
-  '/api/publish',
-  publishRoutes
-)
+// PUBLISH RESULTS
+app.use('/api/publish', publishRoutes)
 
-app.use(
-  '/api/email',
-  emailRoutes
-)
+// EMAIL
+app.use('/api/email', emailRoutes)
 
-app.use(
-  '/api/faculty',
-  facultyRoutes
-)
+// FACULTY
+app.use('/api/faculty', facultyRoutes)
 
 // TEST ROUTE
 app.get('/', (req, res) => {
-
   res.send('API Running...')
 })
 
-const PORT =
-  process.env.PORT || 5000
+// PORT
+const PORT = process.env.PORT || 5000
 
+// START SERVER
 app.listen(PORT, () => {
-
-  console.log(
-    `Server running on port ${PORT}`
-  )
+  console.log(`Server running on port ${PORT}`)
 })

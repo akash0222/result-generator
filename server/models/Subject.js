@@ -10,12 +10,16 @@ const subjectSchema =
 
     code: {
       type: String,
-      required: true,
-      unique: true
+      required: true
     },
 
     credits: {
       type: Number,
+      required: true
+    },
+
+    semester: {
+      type: String,
       required: true
     }
 
