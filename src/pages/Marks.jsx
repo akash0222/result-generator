@@ -1,215 +1,351 @@
-import {
-  useEffect,
-  useState
-} from 'react'
-
+import { useEffect, useState } from 'react'
 import axios from 'axios'
 
 import API_URL from '../config'
 
 function Marks() {
 
-  const [students,
-    setStudents] =
-      useState([])
+  // =========================
+  // STATES
+  // =========================
 
-  const [subjects,
-    setSubjects] =
-      useState([])
+  const [students, setStudents] =
+    useState([])
 
-  const [marks,
-    setMarks] =
-      useState([])
+  const [subjects, setSubjects] =
+    useState([])
 
-  const [formData,
-    setFormData] =
-      useState({
+  const [marks, setMarks] =
+    useState([])
 
-        roll: '',
-        subject: '',
-        internal: '',
-        midterm: '',
-        endterm: ''
-      })
+  const [roll, setRoll] =
+    useState('')
 
-  const [gradingMode,
-    setGradingMode] =
-      useState('absolute')
+  const [subject, setSubject] =
+    useState('')
 
+  const [internal, setInternal] =
+    useState('')
+
+  const [midterm, setMidterm] =
+    useState('')
+
+  const [endterm, setEndterm] =
+    useState('')
+
+  const [gradingMode, setGradingMode] =
+    useState('Absolute Grading')
+
+  // =========================
   // LOAD DATA
+  // =========================
+
   useEffect(() => {
 
-    fetchData()
+    fetchStudents()
+    fetchSubjects()
+    fetchMarks()
 
   }, [])
 
-  // FETCH ALL DATA
-  const fetchData =
-    async () => {
+  // =========================
+  // TOKEN
+  // =========================
 
-      try {
+  const token =
+    localStorage.getItem('token')
 
-        const studentsRes =
-          await axios.get(
-            `${API_URL}/api/students`
-          )
+  // =========================
+  // FETCH STUDENTS
+  // =========================
 
-        const subjectsRes =
-          await axios.get(
-            `${API_URL}/api/subjects`
-          )
+  const fetchStudents = async () => {
 
-        const marksRes =
-          await axios.get(
-            `${API_URL}/api/marks`
-          )
+    try {
 
-        setStudents(
-          studentsRes.data
+      const res =
+        await axios.get(
+
+          `${API_URL}/api/students`,
+
+          {
+            headers: {
+              Authorization:
+                `Bearer ${token}`
+            }
+          }
         )
 
-        setSubjects(
-          subjectsRes.data
-        )
+      setStudents(res.data)
 
-        setMarks(
-          marksRes.data
-        )
+    } catch (error) {
 
-      } catch (error) {
-
-        console.log(error)
-      }
+      console.log(
+        'Students Error:',
+        error.response?.data ||
+        error.message
+      )
     }
+  }
 
-  // HANDLE INPUT
-  const handleChange =
-    (e) => {
+  // =========================
+  // FETCH SUBJECTS
+  // =========================
 
-      setFormData({
+  const fetchSubjects = async () => {
 
-        ...formData,
+    try {
 
-        [e.target.name]:
-          e.target.value
-      })
+      const res =
+        await axios.get(
+
+          `${API_URL}/api/subjects`,
+
+          {
+            headers: {
+              Authorization:
+                `Bearer ${token}`
+            }
+          }
+        )
+
+      setSubjects(res.data)
+
+    } catch (error) {
+
+      console.log(
+        'Subjects Error:',
+        error.response?.data ||
+        error.message
+      )
     }
+  }
 
-  // SUBMIT MARKS
-  const handleSubmit =
-    async (e) => {
+  // =========================
+  // FETCH MARKS
+  // =========================
 
-      e.preventDefault()
+  const fetchMarks = async () => {
 
-      try {
+    try {
 
-        await axios.post(
+      const res =
+        await axios.get(
 
           `${API_URL}/api/marks`,
 
           {
-
-            ...formData,
-
-            gradingMode
+            headers: {
+              Authorization:
+                `Bearer ${token}`
+            }
           }
         )
 
-        // RELOAD DATA
-        fetchData()
+      setMarks(res.data)
 
-        // RESET FORM
-        setFormData({
+    } catch (error) {
 
-          roll: '',
-          subject: '',
-          internal: '',
-          midterm: '',
-          endterm: ''
-        })
+      console.log(
+        'Marks Error:',
+        error.response?.data ||
+        error.message
+      )
+    }
+  }
 
-      } catch (error) {
+  // =========================
+  // GRADE LOGIC
+  // =========================
 
-        console.log(error)
+  const calculateGrade = (
+    total
+  ) => {
 
-        alert(
-          'Something went wrong'
-        )
-      }
+    // ABSOLUTE
+    if (
+      gradingMode ===
+      'Absolute Grading'
+    ) {
+
+      if (total >= 90)
+        return 'A+'
+
+      if (total >= 80)
+        return 'A'
+
+      if (total >= 70)
+        return 'B+'
+
+      if (total >= 60)
+        return 'B'
+
+      if (total >= 50)
+        return 'C'
+
+      return 'F'
     }
 
-  // DELETE MARK
-  const deleteMark =
-    async (id) => {
+    // RELATIVE
+    else {
 
-      try {
+      if (total >= 85)
+        return 'A+'
 
-        await axios.delete(
+      if (total >= 75)
+        return 'A'
 
-          `${API_URL}/api/marks/${id}`
-        )
+      if (total >= 65)
+        return 'B+'
 
-        fetchData()
+      if (total >= 55)
+        return 'B'
 
-      } catch (error) {
+      if (total >= 45)
+        return 'C'
 
-        console.log(error)
-      }
+      return 'F'
     }
+  }
+
+  // =========================
+  // SAVE MARKS
+  // =========================
+
+  const saveMarks = async () => {
+
+    try {
+
+      const total =
+
+        Number(internal) +
+        Number(midterm) +
+        Number(endterm)
+
+      const grade =
+        calculateGrade(total)
+
+      await axios.post(
+
+        `${API_URL}/api/marks`,
+
+        {
+          roll,
+          subject,
+          internal,
+          midterm,
+          endterm,
+          total,
+          grade,
+          gradingMode
+        },
+
+        {
+          headers: {
+            Authorization:
+              `Bearer ${token}`
+          }
+        }
+      )
+
+      alert(
+        'Marks saved successfully'
+      )
+
+      // RESET
+      setRoll('')
+      setSubject('')
+      setInternal('')
+      setMidterm('')
+      setEndterm('')
+
+      fetchMarks()
+
+    } catch (error) {
+
+      console.log(error)
+
+      alert(
+        error.response?.data?.message ||
+        'Something went wrong'
+      )
+    }
+  }
+
+  // =========================
+  // DELETE MARKS
+  // =========================
+
+  const deleteMarks = async (
+    id
+  ) => {
+
+    try {
+
+      await axios.delete(
+
+        `${API_URL}/api/marks/${id}`,
+
+        {
+          headers: {
+            Authorization:
+              `Bearer ${token}`
+          }
+        }
+      )
+
+      fetchMarks()
+
+    } catch (error) {
+
+      console.log(error)
+    }
+  }
 
   return (
 
     <div className="min-h-screen bg-gray-100 p-6">
 
-      <h1 className="text-4xl font-bold text-purple-600 mb-6">
+      {/* HEADER */}
+      <h1 className="text-5xl font-bold text-purple-600 mb-8">
         Marks Entry
       </h1>
 
       {/* FORM */}
-      <form
-        onSubmit={handleSubmit}
-        className="bg-white p-6 rounded-xl shadow mb-6"
-      >
+      <div className="bg-white p-6 rounded-2xl shadow mb-8">
 
-        {/* GRADING MODE */}
-        <select
+        <div className="grid grid-cols-1 md:grid-cols-6 gap-4">
 
-          value={gradingMode}
-
-          onChange={(e) =>
-
-            setGradingMode(
-              e.target.value
-            )
-          }
-
-          className="border p-3 rounded-lg mb-4"
-        >
-
-          <option value="absolute">
-            Absolute Grading
-          </option>
-
-          <option value="relative">
-            Relative Grading
-          </option>
-
-        </select>
-
-        <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
-
-          {/* STUDENT */}
+          {/* GRADING MODE */}
           <select
+            value={gradingMode}
+            onChange={(e) =>
+              setGradingMode(
+                e.target.value
+              )
+            }
+            className="border p-3 rounded-lg"
+          >
 
-            name="roll"
+            <option>
+              Absolute Grading
+            </option>
 
-            value={formData.roll}
+            <option>
+              Relative Grading
+            </option>
 
-            onChange={handleChange}
+          </select>
 
-            className="border p-3 rounded"
-
-            required
+          {/* STUDENTS */}
+          <select
+            value={roll}
+            onChange={(e) =>
+              setRoll(
+                e.target.value
+              )
+            }
+            className="border p-3 rounded-lg"
           >
 
             <option value="">
@@ -223,25 +359,26 @@ function Marks() {
                   key={student._id}
                   value={student.roll}
                 >
+                  {student.name}
+                  {' '}
+                  (
                   {student.roll}
+                  )
                 </option>
               )
             )}
 
           </select>
 
-          {/* SUBJECT */}
+          {/* SUBJECTS */}
           <select
-
-            name="subject"
-
-            value={formData.subject}
-
-            onChange={handleChange}
-
-            className="border p-3 rounded"
-
-            required
+            value={subject}
+            onChange={(e) =>
+              setSubject(
+                e.target.value
+              )
+            }
+            className="border p-3 rounded-lg"
           >
 
             <option value="">
@@ -249,13 +386,13 @@ function Marks() {
             </option>
 
             {subjects.map(
-              (subject) => (
+              (sub) => (
 
                 <option
-                  key={subject._id}
-                  value={subject.code}
+                  key={sub._id}
+                  value={sub.name}
                 >
-                  {subject.code}
+                  {sub.name}
                 </option>
               )
             )}
@@ -264,70 +401,57 @@ function Marks() {
 
           {/* INTERNAL */}
           <input
-
             type="number"
-
-            name="internal"
-
             placeholder="Internal"
-
-            value={formData.internal}
-
-            onChange={handleChange}
-
-            className="border p-3 rounded"
-
-            required
+            value={internal}
+            onChange={(e) =>
+              setInternal(
+                e.target.value
+              )
+            }
+            className="border p-3 rounded-lg"
           />
 
           {/* MIDTERM */}
           <input
-
             type="number"
-
-            name="midterm"
-
             placeholder="Midterm"
-
-            value={formData.midterm}
-
-            onChange={handleChange}
-
-            className="border p-3 rounded"
-
-            required
+            value={midterm}
+            onChange={(e) =>
+              setMidterm(
+                e.target.value
+              )
+            }
+            className="border p-3 rounded-lg"
           />
 
           {/* ENDTERM */}
           <input
-
             type="number"
-
-            name="endterm"
-
             placeholder="Endterm"
-
-            value={formData.endterm}
-
-            onChange={handleChange}
-
-            className="border p-3 rounded"
-
-            required
+            value={endterm}
+            onChange={(e) =>
+              setEndterm(
+                e.target.value
+              )
+            }
+            className="border p-3 rounded-lg"
           />
 
         </div>
 
+        {/* BUTTON */}
         <button
-          className="mt-4 bg-purple-600 hover:bg-purple-700 text-white px-6 py-3 rounded-lg"
+          onClick={saveMarks}
+          className="mt-6 bg-purple-600 text-white px-6 py-3 rounded-lg"
         >
           Save Marks
         </button>
 
-      </form>
+      </div>
 
       {/* TABLE */}
-      <div className="bg-white rounded-xl shadow overflow-hidden">
+      <div className="bg-white rounded-2xl shadow overflow-hidden">
 
         <table className="w-full">
 
@@ -365,54 +489,51 @@ function Marks() {
 
           <tbody>
 
-            {marks.map(
-              (mark) => (
+            {marks.map((mark) => (
 
-                <tr
-                  key={mark._id}
-                  className="border-t"
-                >
+              <tr
+                key={mark._id}
+                className="border-t"
+              >
 
-                  <td className="p-4">
-                    {mark.roll}
-                  </td>
+                <td className="p-4">
+                  {mark.roll}
+                </td>
 
-                  <td className="p-4">
-                    {mark.subject}
-                  </td>
+                <td className="p-4">
+                  {mark.subject}
+                </td>
 
-                  <td className="p-4 font-bold">
-                    {mark.total}
-                  </td>
+                <td className="p-4">
+                  {mark.total}
+                </td>
 
-                  <td className="p-4 font-bold text-purple-600">
-                    {mark.grade}
-                  </td>
+                <td className="p-4 font-bold text-purple-600">
+                  {mark.grade}
+                </td>
 
-                  <td className="p-4">
-                    {mark.gradingMode}
-                  </td>
+                <td className="p-4">
+                  {mark.gradingMode}
+                </td>
 
-                  <td className="p-4">
+                <td className="p-4">
 
-                    <button
+                  <button
+                    onClick={() =>
+                      deleteMarks(
+                        mark._id
+                      )
+                    }
+                    className="bg-red-500 text-white px-4 py-2 rounded-lg"
+                  >
+                    Delete
+                  </button>
 
-                      onClick={() =>
-                        deleteMark(
-                          mark._id
-                        )
-                      }
+                </td>
 
-                      className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg"
-                    >
-                      Delete
-                    </button>
+              </tr>
 
-                  </td>
-
-                </tr>
-              )
-            )}
+            ))}
 
           </tbody>
 
