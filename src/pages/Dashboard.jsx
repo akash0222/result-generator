@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import axios from 'axios'
+import API_URL from '../config'
 
 function Dashboard() {
 
@@ -23,7 +24,7 @@ function Dashboard() {
 
       const res =
         await axios.get(
-          'http://localhost:5000/api/students'
+          `${API_URL}/api/students`
         )
 
       setStudents(res.data)
@@ -39,12 +40,12 @@ function Dashboard() {
 
     try {
 
-      const savedSubjects =
-        JSON.parse(
-          localStorage.getItem('subjects')
-        ) || []
+      const res =
+        await axios.get(
+          `${API_URL}/api/subjects`
+        )
 
-      setSubjects(savedSubjects)
+      setSubjects(res.data)
 
     } catch (error) {
 
@@ -57,12 +58,12 @@ function Dashboard() {
 
     try {
 
-      const savedMarks =
-        JSON.parse(
-          localStorage.getItem('marks')
-        ) || []
+      const res =
+        await axios.get(
+          `${API_URL}/api/marks`
+        )
 
-      setMarks(savedMarks)
+      setMarks(res.data)
 
     } catch (error) {
 

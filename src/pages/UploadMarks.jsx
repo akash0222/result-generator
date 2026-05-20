@@ -56,7 +56,7 @@ function UploadMarks() {
       for (const mark of data) {
 
         await axios.post(
-          'http://localhost:5000/api/marks',
+          '${API_URL}/api/marks',
           {
             roll: mark.roll,
             subject: mark.subject,

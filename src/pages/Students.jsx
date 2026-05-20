@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import axios from 'axios'
+import API_URL from '../config'
 
 function Students() {
 
@@ -29,7 +30,7 @@ function Students() {
 
       const res =
         await axios.get(
-          'http://localhost:5000/api/students'
+          '${API_URL}/api/students'
         )
 
       setStudents(res.data)
@@ -61,7 +62,7 @@ function Students() {
 
         const res =
           await axios.put(
-            `http://localhost:5000/api/students/${editId}`,
+            `${API_URL}/api/students/${editId}`,
             formData
           )
 
@@ -80,7 +81,7 @@ function Students() {
         // ADD STUDENT
         const res =
           await axios.post(
-            'http://localhost:5000/api/students',
+            '${API_URL}/api/students',
             formData
           )
 
@@ -115,7 +116,7 @@ function Students() {
     try {
 
       await axios.delete(
-        `http://localhost:5000/api/students/${id}`
+        `${API_URL}/api/students/${id}`
       )
 
       const updatedStudents =

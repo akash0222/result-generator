@@ -1,4 +1,6 @@
 import { useState, useEffect } from 'react'
+import axios from 'axios'
+import API_URL from '../config'
 
 function Subjects() {
 
@@ -6,7 +8,7 @@ function Subjects() {
 
   const [search, setSearch] = useState('')
 
-  const [editIndex, setEditIndex] = useState(null)
+  const [editId, setEditId] = useState(null)
 
   const [formData, setFormData] = useState({
     subject: '',
@@ -15,27 +17,30 @@ function Subjects() {
     semester: ''
   })
 
-  // LOAD LOCAL STORAGE
+  // LOAD SUBJECTS
   useEffect(() => {
 
-    const savedSubjects =
-      localStorage.getItem('subjects')
-
-    if (savedSubjects) {
-      setSubjects(JSON.parse(savedSubjects))
-    }
+    fetchSubjects()
 
   }, [])
 
-  // SAVE LOCAL STORAGE
-  useEffect(() => {
+  // FETCH SUBJECTS
+  const fetchSubjects = async () => {
 
-    localStorage.setItem(
-      'subjects',
-      JSON.stringify(subjects)
-    )
+    try {
 
-  }, [subjects])
+      const res =
+        await axios.get(
+          `${API_URL}/api/subjects`
+        )
+
+      setSubjects(res.data)
+
+    } catch (error) {
+
+      console.log(error)
+    }
+  }
 
   // HANDLE INPUT
   const handleChange = (e) => {
@@ -47,70 +52,79 @@ function Subjects() {
 
   }
 
-  // ADD / UPDATE SUBJECT
-  const handleSubmit = (e) => {
+  // ADD / UPDATE
+  const handleSubmit = async (e) => {
 
     e.preventDefault()
 
-    // DUPLICATE CODE CHECK
-    const exists = subjects.find(
-      (sub, index) =>
-        sub.code === formData.code &&
-        index !== editIndex
-    )
+    try {
 
-    if (exists) {
-      alert('Subject code already exists')
-      return
+      // UPDATE
+      if (editId) {
+
+        await axios.put(
+          `${API_URL}/api/subjects/${editId}`,
+          formData
+        )
+
+        setEditId(null)
+
+      } else {
+
+        // ADD
+        await axios.post(
+          `${API_URL}/api/subjects`,
+          formData
+        )
+
+      }
+
+      // RESET
+      setFormData({
+        subject: '',
+        code: '',
+        credits: '',
+        semester: ''
+      })
+
+      fetchSubjects()
+
+    } catch (error) {
+
+      console.log(error)
+
+      alert('Something went wrong')
     }
+  }
 
-    // UPDATE
-    if (editIndex !== null) {
+  // DELETE
+  const deleteSubject = async (id) => {
 
-      const updatedSubjects =
-        [...subjects]
+    try {
 
-      updatedSubjects[editIndex] =
-        formData
+      await axios.delete(
+        `${API_URL}/api/subjects/${id}`
+      )
 
-      setSubjects(updatedSubjects)
+      fetchSubjects()
 
-      setEditIndex(null)
+    } catch (error) {
 
-    } else {
-
-      // ADD
-      setSubjects([
-        ...subjects,
-        formData
-      ])
-
+      console.log(error)
     }
+  }
 
-    // RESET
+  // EDIT
+  const editSubject = (subject) => {
+
     setFormData({
-      subject: '',
-      code: '',
-      credits: '',
-      semester: ''
+      subject: subject.subject,
+      code: subject.code,
+      credits: subject.credits,
+      semester: subject.semester
     })
-  }
 
-  // DELETE SUBJECT
-  const deleteSubject = (index) => {
-
-    const updatedSubjects =
-      subjects.filter((_, i) => i !== index)
-
-    setSubjects(updatedSubjects)
-  }
-
-  // EDIT SUBJECT
-  const editSubject = (index) => {
-
-    setFormData(subjects[index])
-
-    setEditIndex(index)
+    setEditId(subject._id)
   }
 
   // SEARCH FILTER
@@ -144,7 +158,6 @@ function Subjects() {
 
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
 
-          {/* SUBJECT */}
           <input
             type="text"
             name="subject"
@@ -155,7 +168,6 @@ function Subjects() {
             required
           />
 
-          {/* CODE */}
           <input
             type="text"
             name="code"
@@ -166,7 +178,6 @@ function Subjects() {
             required
           />
 
-          {/* CREDITS */}
           <input
             type="number"
             name="credits"
@@ -177,7 +188,6 @@ function Subjects() {
             required
           />
 
-          {/* SEMESTER */}
           <input
             type="number"
             name="semester"
@@ -192,12 +202,12 @@ function Subjects() {
 
         <button
           className={`mt-4 text-white px-6 py-3 rounded-lg ${
-            editIndex !== null
+            editId
               ? 'bg-yellow-500 hover:bg-yellow-600'
               : 'bg-green-600 hover:bg-green-700'
           }`}
         >
-          {editIndex !== null
+          {editId
             ? 'Update Subject'
             : 'Add Subject'}
         </button>
@@ -265,10 +275,10 @@ function Subjects() {
 
             ) : (
 
-              filteredSubjects.map((subject, index) => (
+              filteredSubjects.map((subject) => (
 
                 <tr
-                  key={index}
+                  key={subject._id}
                   className="border-t hover:bg-gray-50"
                 >
 
@@ -292,7 +302,7 @@ function Subjects() {
 
                     <button
                       onClick={() =>
-                        editSubject(index)
+                        editSubject(subject)
                       }
                       className="bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-2 rounded-lg"
                     >
@@ -301,7 +311,7 @@ function Subjects() {
 
                     <button
                       onClick={() =>
-                        deleteSubject(index)
+                        deleteSubject(subject._id)
                       }
                       className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg"
                     >

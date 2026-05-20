@@ -5,6 +5,8 @@ import {
 
 import axios from 'axios'
 
+import API_URL from '../config'
+
 function Marks() {
 
   const [students,
@@ -41,6 +43,7 @@ function Marks() {
 
   }, [])
 
+  // FETCH ALL DATA
   const fetchData =
     async () => {
 
@@ -48,17 +51,17 @@ function Marks() {
 
         const studentsRes =
           await axios.get(
-            'http://localhost:5000/api/students'
+            `${API_URL}/api/students`
           )
 
         const subjectsRes =
           await axios.get(
-            'http://localhost:5000/api/subjects'
+            `${API_URL}/api/subjects`
           )
 
         const marksRes =
           await axios.get(
-            'http://localhost:5000/api/marks'
+            `${API_URL}/api/marks`
           )
 
         setStudents(
@@ -79,7 +82,7 @@ function Marks() {
       }
     }
 
-  // INPUT
+  // HANDLE INPUT
   const handleChange =
     (e) => {
 
@@ -92,7 +95,7 @@ function Marks() {
       })
     }
 
-  // SUBMIT
+  // SUBMIT MARKS
   const handleSubmit =
     async (e) => {
 
@@ -102,7 +105,7 @@ function Marks() {
 
         await axios.post(
 
-          'http://localhost:5000/api/marks',
+          `${API_URL}/api/marks`,
 
           {
 
@@ -112,8 +115,10 @@ function Marks() {
           }
         )
 
+        // RELOAD DATA
         fetchData()
 
+        // RESET FORM
         setFormData({
 
           roll: '',
@@ -133,7 +138,7 @@ function Marks() {
       }
     }
 
-  // DELETE
+  // DELETE MARK
   const deleteMark =
     async (id) => {
 
@@ -141,7 +146,7 @@ function Marks() {
 
         await axios.delete(
 
-          `http://localhost:5000/api/marks/${id}`
+          `${API_URL}/api/marks/${id}`
         )
 
         fetchData()
@@ -314,7 +319,7 @@ function Marks() {
         </div>
 
         <button
-          className="mt-4 bg-purple-600 text-white px-6 py-3 rounded-lg"
+          className="mt-4 bg-purple-600 hover:bg-purple-700 text-white px-6 py-3 rounded-lg"
         >
           Save Marks
         </button>
@@ -398,7 +403,7 @@ function Marks() {
                         )
                       }
 
-                      className="bg-red-500 text-white px-4 py-2 rounded-lg"
+                      className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg"
                     >
                       Delete
                     </button>

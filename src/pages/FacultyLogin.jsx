@@ -8,6 +8,8 @@ import {
   useNavigate
 } from 'react-router-dom'
 
+import API_URL from '../config'
+
 function FacultyLogin() {
 
   const [email,
@@ -21,6 +23,7 @@ function FacultyLogin() {
   const navigate =
     useNavigate()
 
+  // LOGIN
   const handleLogin =
     async (e) => {
 
@@ -31,7 +34,7 @@ function FacultyLogin() {
         const res =
           await axios.post(
 
-            'http://localhost:5000/api/faculty/login',
+            `${API_URL}/api/faculty/login`,
 
             {
               email,
@@ -39,6 +42,7 @@ function FacultyLogin() {
             }
           )
 
+        // SAVE TOKEN
         localStorage.setItem(
 
           'facultyToken',
@@ -46,6 +50,7 @@ function FacultyLogin() {
           res.data.token
         )
 
+        // SAVE FACULTY
         localStorage.setItem(
 
           'faculty',
@@ -55,14 +60,20 @@ function FacultyLogin() {
           )
         )
 
+        // REDIRECT
         navigate(
           '/faculty-dashboard'
         )
 
       } catch (error) {
 
+        console.log(error)
+
         alert(
-          error.response?.data?.message
+
+          error.response?.data?.message ||
+
+          'Login Failed'
         )
       }
     }
@@ -82,6 +93,7 @@ function FacultyLogin() {
           Faculty Login
         </h1>
 
+        {/* EMAIL */}
         <input
 
           type="email"
@@ -91,6 +103,7 @@ function FacultyLogin() {
           value={email}
 
           onChange={(e) =>
+
             setEmail(
               e.target.value
             )
@@ -101,6 +114,7 @@ function FacultyLogin() {
           required
         />
 
+        {/* PASSWORD */}
         <input
 
           type="password"
@@ -110,6 +124,7 @@ function FacultyLogin() {
           value={password}
 
           onChange={(e) =>
+
             setPassword(
               e.target.value
             )
@@ -120,9 +135,10 @@ function FacultyLogin() {
           required
         />
 
+        {/* BUTTON */}
         <button
 
-          className="w-full bg-blue-600 text-white py-3 rounded-lg"
+          className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg"
         >
           Login
         </button>

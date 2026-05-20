@@ -1,20 +1,31 @@
-import { useEffect, useState } from 'react'
+import {
+  useEffect,
+  useState
+} from 'react'
+
 import axios from 'axios'
+
+import API_URL from '../config'
 
 import generateGradeCard
 from '../utils/generateGradeCard'
 
 import JSZip from 'jszip'
-import { saveAs } from 'file-saver'
+
+import { saveAs }
+from 'file-saver'
 
 function Results() {
 
-  const [students, setStudents] =
-    useState([])
+  const [students,
+    setStudents] =
+      useState([])
 
-  const [marks, setMarks] =
-    useState([])
+  const [marks,
+    setMarks] =
+      useState([])
 
+  // LOAD DATA
   useEffect(() => {
 
     fetchData()
@@ -22,105 +33,114 @@ function Results() {
   }, [])
 
   // FETCH DATA
-  const fetchData = async () => {
+  const fetchData =
+    async () => {
 
-    try {
+      try {
 
-      const studentsRes =
-        await axios.get(
-          'http://localhost:5000/api/students'
+        const studentsRes =
+          await axios.get(
+            `${API_URL}/api/students`
+          )
+
+        const marksRes =
+          await axios.get(
+            `${API_URL}/api/marks`
+          )
+
+        setStudents(
+          studentsRes.data
         )
 
-      const marksRes =
-        await axios.get(
-          'http://localhost:5000/api/marks'
+        setMarks(
+          marksRes.data
         )
 
-      setStudents(studentsRes.data)
+      } catch (error) {
 
-      setMarks(marksRes.data)
-
-    } catch (error) {
-
-      console.log(error)
+        console.log(error)
+      }
     }
-  }
 
   // CALCULATE SGPA
-  const calculateSGPA = (roll) => {
+  const calculateSGPA =
+    (roll) => {
 
-    const studentMarks =
-      marks.filter(
-        (m) => m.roll === roll
-      )
+      const studentMarks =
+        marks.filter(
+          (m) =>
+            m.roll === roll
+        )
 
-    if (studentMarks.length === 0)
-      return 0
-
-    let total = 0
-
-    studentMarks.forEach((m) => {
-
-      switch (m.grade) {
-
-        case 'A+':
-
-          total += 10
-          break
-
-        case 'A':
-
-          total += 9
-          break
-
-        case 'B+':
-
-          total += 8
-          break
-
-        case 'B':
-
-          total += 7
-          break
-
-        case 'C':
-
-          total += 6
-          break
-
-        default:
-
-          total += 0
+      if (
+        studentMarks.length === 0
+      ) {
+        return 0
       }
-    })
 
-    return (
-      total /
-      studentMarks.length
-    ).toFixed(2)
-  }
+      let total = 0
 
-  // SINGLE PDF DOWNLOAD
-  const downloadPDF = (
-    student,
-    studentMarks,
-    sgpa
-  ) => {
+      studentMarks.forEach(
+        (m) => {
 
-    const pdfBlob =
-      generateGradeCard(
+          switch (m.grade) {
 
-        student,
-        studentMarks,
-        sgpa,
-        sgpa
+            case 'A+':
+              total += 10
+              break
+
+            case 'A':
+              total += 9
+              break
+
+            case 'B+':
+              total += 8
+              break
+
+            case 'B':
+              total += 7
+              break
+
+            case 'C':
+              total += 6
+              break
+
+            default:
+              total += 0
+          }
+        }
       )
 
-    saveAs(
-      pdfBlob,
-      `${student.roll}_GradeCard.pdf`
-    )
-  }
+      return (
+        total /
+        studentMarks.length
+      ).toFixed(2)
+    }
+
+  // DOWNLOAD SINGLE PDF
+  const downloadPDF =
+    (
+      student,
+      studentMarks,
+      sgpa
+    ) => {
+
+      const pdfBlob =
+        generateGradeCard(
+
+          student,
+          studentMarks,
+          sgpa,
+          sgpa
+        )
+
+      saveAs(
+
+        pdfBlob,
+
+        `${student.roll}_GradeCard.pdf`
+      )
+    }
 
   // DOWNLOAD ALL PDFS
   const downloadAllResults =
@@ -129,7 +149,9 @@ function Results() {
       const zip =
         new JSZip()
 
-      for (const student of students) {
+      for (
+        const student of students
+      ) {
 
         const studentMarks =
           marks.filter(
@@ -152,7 +174,9 @@ function Results() {
           )
 
         zip.file(
+
           `${student.roll}_GradeCard.pdf`,
+
           pdfBlob
         )
       }
@@ -165,7 +189,9 @@ function Results() {
         })
 
       saveAs(
+
         content,
+
         'All_GradeCards.zip'
       )
     }
@@ -177,7 +203,9 @@ function Results() {
       try {
 
         await axios.post(
-          'http://localhost:5000/api/email',
+
+          `${API_URL}/api/email`,
+
           {
 
             email:
@@ -212,7 +240,11 @@ function Results() {
 
       {/* BULK DOWNLOAD */}
       <button
-        onClick={downloadAllResults}
+
+        onClick={
+          downloadAllResults
+        }
+
         className="mb-6 bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg"
       >
         Download All Grade Cards
@@ -257,77 +289,84 @@ function Results() {
 
           <tbody>
 
-            {students.map((student) => {
+            {students.map(
+              (student) => {
 
-              const studentMarks =
-                marks.filter(
-                  (m) =>
-                    m.roll === student.roll
+                const studentMarks =
+                  marks.filter(
+                    (m) =>
+                      m.roll === student.roll
+                  )
+
+                const sgpa =
+                  calculateSGPA(
+                    student.roll
+                  )
+
+                return (
+
+                  <tr
+                    key={student._id}
+                    className="border-t"
+                  >
+
+                    <td className="p-4">
+                      {student.name}
+                    </td>
+
+                    <td className="p-4">
+                      {student.roll}
+                    </td>
+
+                    <td className="p-4">
+                      {student.course}
+                    </td>
+
+                    <td className="p-4 font-bold text-indigo-600">
+                      {sgpa}
+                    </td>
+
+                    {/* DOWNLOAD */}
+                    <td className="p-4">
+
+                      <button
+
+                        onClick={() =>
+
+                          downloadPDF(
+                            student,
+                            studentMarks,
+                            sgpa
+                          )
+                        }
+
+                        className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg"
+                      >
+                        Download PDF
+                      </button>
+
+                    </td>
+
+                    {/* EMAIL */}
+                    <td className="p-4">
+
+                      <button
+
+                        onClick={() =>
+                          sendEmail(student)
+                        }
+
+                        className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg"
+                      >
+                        Send Email
+                      </button>
+
+                    </td>
+
+                  </tr>
                 )
-
-              const sgpa =
-                calculateSGPA(
-                  student.roll
-                )
-
-              return (
-
-                <tr
-                  key={student._id}
-                  className="border-t"
-                >
-
-                  <td className="p-4">
-                    {student.name}
-                  </td>
-
-                  <td className="p-4">
-                    {student.roll}
-                  </td>
-
-                  <td className="p-4">
-                    {student.course}
-                  </td>
-
-                  <td className="p-4 font-bold text-indigo-600">
-                    {sgpa}
-                  </td>
-
-                  {/* DOWNLOAD */}
-                  <td className="p-4">
-
-                    <button
-                      onClick={() =>
-                        downloadPDF(
-                          student,
-                          studentMarks,
-                          sgpa
-                        )
-                      }
-                      className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg"
-                    >
-                      Download PDF
-                    </button>
-
-                  </td>
-
-                  {/* EMAIL */}
-                  <td className="p-4">
-
-                    <button
-                      onClick={() =>
-                        sendEmail(student)
-                      }
-                      className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg"
-                    >
-                      Send Email
-                    </button>
-
-                  </td>
-
-                </tr>
-              )
-            })}
+              }
+            )}
 
           </tbody>
 
