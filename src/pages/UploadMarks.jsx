@@ -1,35 +1,31 @@
 import { useState } from 'react'
 import * as XLSX from 'xlsx'
-import axios from 'axios'
+import API from '../utils/axios'
 
 function UploadMarks() {
 
-  const [data, setData] =
-    useState([])
+  const [data, setData] = useState([])
+  const [loading, setLoading] = useState(false)
 
-  // READ FILE
-  const handleFileUpload = (
-    e
-  ) => {
+  // READ EXCEL FILE
+  const handleFileUpload = (e) => {
 
-    const file =
-      e.target.files[0]
+    const file = e.target.files[0]
 
-    const reader =
-      new FileReader()
+    if (!file) return
 
-    reader.onload = (
-      event
-    ) => {
+    const reader = new FileReader()
 
-      const binaryStr =
-        event.target.result
+    reader.onload = (event) => {
 
-      const workbook =
-        XLSX.read(
-          binaryStr,
-          { type: 'binary' }
-        )
+      const binaryStr = event.target.result
+
+      const workbook = XLSX.read(
+        binaryStr,
+        {
+          type: 'binary'
+        }
+      )
 
       const sheetName =
         workbook.SheetNames[0]
@@ -38,9 +34,7 @@ function UploadMarks() {
         workbook.Sheets[sheetName]
 
       const jsonData =
-        XLSX.utils.sheet_to_json(
-          sheet
-        )
+        XLSX.utils.sheet_to_json(sheet)
 
       setData(jsonData)
     }
@@ -48,28 +42,35 @@ function UploadMarks() {
     reader.readAsBinaryString(file)
   }
 
-  // SAVE
+  // UPLOAD MARKS
   const uploadMarks = async () => {
+
+    if (data.length === 0) {
+      alert('Please upload excel file')
+      return
+    }
 
     try {
 
+      setLoading(true)
+
       for (const mark of data) {
 
-        await axios.post(
-          '${API_URL}/api/marks',
+        await API.post(
+          '/api/marks',
           {
-            roll: mark.roll,
-            subject: mark.subject,
-            internal: mark.internal,
-            midterm: mark.midterm,
-            endterm: mark.endterm
+            roll: mark.roll || '',
+            subject: mark.subject || '',
+            internal: Number(mark.internal) || 0,
+            midterm: Number(mark.midterm) || 0,
+            endterm: Number(mark.endterm) || 0,
           }
         )
       }
 
-      alert(
-        'Marks uploaded successfully'
-      )
+      alert('Marks uploaded successfully')
+
+      setData([])
 
     } catch (error) {
 
@@ -79,6 +80,10 @@ function UploadMarks() {
         error.response?.data?.message ||
         'Upload failed'
       )
+
+    } finally {
+
+      setLoading(false)
     }
   }
 
@@ -90,95 +95,107 @@ function UploadMarks() {
         Upload Marks
       </h1>
 
+      {/* FILE UPLOAD */}
       <div className="bg-white p-6 rounded-xl shadow mb-6">
 
         <input
           type="file"
-          accept=".xlsx, .xls"
+          accept=".xlsx,.xls"
           onChange={handleFileUpload}
           className="mb-4"
         />
 
         <button
           onClick={uploadMarks}
-          className="bg-purple-600 text-white px-6 py-3 rounded-lg"
+          disabled={loading}
+          className="bg-purple-600 text-white px-6 py-3 rounded-lg hover:bg-purple-700 disabled:bg-gray-400"
         >
-          Upload Marks
+          {
+            loading
+              ? 'Uploading...'
+              : 'Upload Marks'
+          }
         </button>
 
       </div>
 
-      {/* PREVIEW */}
-      <div className="bg-white rounded-xl shadow overflow-hidden">
+      {/* TABLE PREVIEW */}
+      {
+        data.length > 0 && (
 
-        <table className="w-full">
+          <div className="bg-white rounded-xl shadow overflow-x-auto">
 
-          <thead className="bg-gray-200">
+            <table className="w-full border-collapse">
 
-            <tr>
+              <thead className="bg-gray-200">
 
-              <th className="p-4">
-                Roll
-              </th>
+                <tr>
 
-              <th className="p-4">
-                Subject
-              </th>
+                  <th className="p-4 border">
+                    Roll
+                  </th>
 
-              <th className="p-4">
-                Internal
-              </th>
+                  <th className="p-4 border">
+                    Subject
+                  </th>
 
-              <th className="p-4">
-                Midterm
-              </th>
+                  <th className="p-4 border">
+                    Internal
+                  </th>
 
-              <th className="p-4">
-                Endterm
-              </th>
+                  <th className="p-4 border">
+                    Midterm
+                  </th>
 
-            </tr>
+                  <th className="p-4 border">
+                    Endterm
+                  </th>
 
-          </thead>
+                </tr>
 
-          <tbody>
+              </thead>
 
-            {data.map((mark, index) => (
+              <tbody>
 
-              <tr
-                key={index}
-                className="border-t"
-              >
+                {
+                  data.map((mark, index) => (
 
-                <td className="p-4">
-                  {mark.roll}
-                </td>
+                    <tr
+                      key={index}
+                      className="border-t"
+                    >
 
-                <td className="p-4">
-                  {mark.subject}
-                </td>
+                      <td className="p-4 border">
+                        {mark.roll}
+                      </td>
 
-                <td className="p-4">
-                  {mark.internal}
-                </td>
+                      <td className="p-4 border">
+                        {mark.subject}
+                      </td>
 
-                <td className="p-4">
-                  {mark.midterm}
-                </td>
+                      <td className="p-4 border">
+                        {mark.internal}
+                      </td>
 
-                <td className="p-4">
-                  {mark.endterm}
-                </td>
+                      <td className="p-4 border">
+                        {mark.midterm}
+                      </td>
 
-              </tr>
+                      <td className="p-4 border">
+                        {mark.endterm}
+                      </td>
 
-            ))}
+                    </tr>
+                  ))
+                }
 
-          </tbody>
+              </tbody>
 
-        </table>
+            </table>
 
-      </div>
+          </div>
+        )
+      }
 
     </div>
   )

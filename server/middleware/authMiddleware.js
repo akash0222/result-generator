@@ -1,77 +1,65 @@
 import jwt from 'jsonwebtoken'
 
-// VERIFY TOKEN
-const protect =
-  (req, res, next) => {
+const protect = (req, res, next) => {
 
-    try {
+  try {
 
-      const token =
-        req.headers.authorization
+    let token = null
 
-      if (!token) {
+    if (
+      req.headers.authorization &&
+      req.headers.authorization.startsWith('Bearer')
+    ) {
+      token = req.headers.authorization.split(' ')[1]
+    }
 
-        return res.status(401).json({
-
-          message:
-            'Not authorized'
-        })
-      }
-
-      const decoded =
-        jwt.verify(
-
-          token,
-          'secret123'
-        )
-
-      req.user =
-        decoded
-
-      next()
-
-    } catch (error) {
-
-      res.status(401).json({
-
-        message:
-          'Token failed'
+    if (!token) {
+      return res.status(401).json({
+        message: 'Not authorized'
       })
     }
-  }
 
-// ADMIN ONLY
+    const decoded = jwt.verify(
+      token,
+      process.env.JWT_SECRET
+    )
+
+    req.user = decoded
+
+    next()
+
+  } catch (error) {
+
+    res.status(401).json({
+      message: 'Token failed'
+    })
+  }
+}
+
 const adminOnly =
   (req, res, next) => {
 
     if (
-      req.user.role !==
-      'admin'
+      req.user.role !== 'admin'
     ) {
 
       return res.status(403).json({
-
-        message:
-          'Admin only access'
+        message: 'Admin only access'
       })
     }
 
     next()
   }
 
-// FACULTY ONLY
 const facultyOnly =
   (req, res, next) => {
 
     if (
-      req.user.role !==
-      'faculty'
+      req.user.role !== 'faculty'
     ) {
 
       return res.status(403).json({
-
-        message:
-          'Faculty only access'
+        message: 'Faculty only access'
       })
     }
 
@@ -79,7 +67,6 @@ const facultyOnly =
   }
 
 export {
-
   protect,
   adminOnly,
   facultyOnly
