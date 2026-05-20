@@ -27,10 +27,7 @@ app.use(
 
   cors({
 
-    origin: [
-      'http://localhost:5173',
-      'https://result-generator-git-main-akash-singhs-projects-db9ce447.vercel.app'
-    ],
+    origin: '*',
 
     credentials: true
   })
@@ -46,28 +43,52 @@ app.use(express.json())
 // ======================
 
 // AUTH
-app.use('/api/auth', authRoutes)
+app.use(
+  '/api/auth',
+  authRoutes
+)
 
 // STUDENTS
-app.use('/api/students', studentRoutes)
+app.use(
+  '/api/students',
+  studentRoutes
+)
 
 // SUBJECTS
-app.use('/api/subjects', subjectRoutes)
+app.use(
+  '/api/subjects',
+  subjectRoutes
+)
 
 // MARKS
-app.use('/api/marks', marksRoutes)
+app.use(
+  '/api/marks',
+  marksRoutes
+)
 
 // RESULTS
-app.use('/api/results', resultRoutes)
+app.use(
+  '/api/results',
+  resultRoutes
+)
 
 // PUBLISH RESULTS
-app.use('/api/publish', publishRoutes)
+app.use(
+  '/api/publish',
+  publishRoutes
+)
 
 // EMAIL
-app.use('/api/email', emailRoutes)
+app.use(
+  '/api/email',
+  emailRoutes
+)
 
 // FACULTY
-app.use('/api/faculty', facultyRoutes)
+app.use(
+  '/api/faculty',
+  facultyRoutes
+)
 
 // ======================
 // TEST ROUTE
@@ -86,7 +107,8 @@ app.use((err, req, res, next) => {
 
   res.status(500).json({
 
-    message: err.message ||
+    message:
+      err.message ||
       'Server Error'
   })
 })
@@ -103,6 +125,7 @@ const PORT =
 app.listen(PORT, () => {
 
   console.log(
+
     `Server running on port ${PORT}`
   )
 })

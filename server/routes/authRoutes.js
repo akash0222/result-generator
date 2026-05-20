@@ -1,60 +1,78 @@
 import express from 'express'
 import jwt from 'jsonwebtoken'
 
-const router = express.Router()
+const router =
+  express.Router()
 
-router.post('/login', async (req, res) => {
+router.post(
+  '/login',
 
-  try {
+  async (req, res) => {
 
-    const {
-      username,
-      password
-    } = req.body
+    try {
 
-    // ADMIN LOGIN
-    if (
+      const {
 
-      username === 'admin' &&
-      password === 'admin123'
+        username,
+        password
 
-    ) {
+      } = req.body
 
-      const token = jwt.sign(
+      // ======================
+      // ADMIN LOGIN
+      // ======================
+      if (
 
-        {
-          username: 'admin',
+        username === 'admin' &&
+        password === 'admin123'
+
+      ) {
+
+        const token = jwt.sign(
+
+          {
+
+            username: 'admin',
+            role: 'admin'
+
+          },
+
+          process.env.JWT_SECRET,
+
+          {
+
+            expiresIn: '30d'
+          }
+        )
+
+        return res.status(200).json({
+
+          token,
+
           role: 'admin'
-        },
+        })
+      }
 
-        process.env.JWT_SECRET,
+      // ======================
+      // INVALID LOGIN
+      // ======================
+      return res.status(401).json({
 
-        {
-          expiresIn: '30d'
-        }
-      )
+        message:
+          'Invalid credentials'
+      })
 
-      return res.status(200).json({
+    } catch (error) {
 
-        token,
-        role: 'admin'
+      console.log(error)
+
+      return res.status(500).json({
+
+        message:
+          'Server Error'
       })
     }
-
-    return res.status(401).json({
-
-      message: 'Invalid credentials'
-    })
-
-  } catch (error) {
-
-    console.log(error)
-
-    return res.status(500).json({
-
-      message: 'Server Error'
-    })
   }
-})
+)
 
 export default router

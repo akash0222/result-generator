@@ -18,26 +18,45 @@ import {
 const router =
   express.Router()
 
+// ======================
 // GET MARKS
+// ======================
 router.get(
+
   '/',
+
   protect,
+
+  facultyOnly,
+
   getMarks
 )
 
+// ======================
 // ADD MARKS
+// ======================
 router.post(
+
   '/',
+
   protect,
+
   facultyOnly,
+
   addMarks
 )
 
+// ======================
 // DELETE MARK
+// ======================
 router.delete(
+
   '/:id',
+
   protect,
+
   facultyOnly,
+
   deleteMark
 )
 
