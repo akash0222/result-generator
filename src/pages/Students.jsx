@@ -1,7 +1,5 @@
 import { useState, useEffect } from 'react'
-
 import axios from 'axios'
-
 import API_URL from '../config'
 
 function Students() {
@@ -14,18 +12,24 @@ function Students() {
 
   const [formData, setFormData] =
     useState({
+
       name: '',
+
       roll: '',
-      course: ''
+
+      email: '',
+
+      phone: '',
+
+      course: '',
+
+      semester: ''
     })
 
   const [editId, setEditId] =
     useState(null)
 
-  // =========================
   // TOKEN
-  // =========================
-
   const token =
     localStorage.getItem(
       'token'
@@ -40,10 +44,6 @@ function Students() {
     fetchStudents()
 
   }, [])
-
-  // =========================
-  // GET ALL STUDENTS
-  // =========================
 
   const fetchStudents =
     async () => {
@@ -68,10 +68,6 @@ function Students() {
       } catch (error) {
 
         console.log(error)
-
-        alert(
-          'Failed to load students'
-        )
       }
     }
 
@@ -92,7 +88,7 @@ function Students() {
     }
 
   // =========================
-  // ADD OR UPDATE
+  // ADD / UPDATE
   // =========================
 
   const handleSubmit =
@@ -102,10 +98,7 @@ function Students() {
 
       try {
 
-        // =====================
-        // UPDATE STUDENT
-        // =====================
-
+        // UPDATE
         if (editId) {
 
           const res =
@@ -123,7 +116,8 @@ function Students() {
               }
             )
 
-          const updatedStudents =
+          setStudents(
+
             students.map(
               (student) =>
 
@@ -131,20 +125,14 @@ function Students() {
                   ? res.data
                   : student
             )
-
-          setStudents(
-            updatedStudents
           )
 
           alert(
-            'Student Updated Successfully'
+            'Student Updated'
           )
         }
 
-        // =====================
-        // ADD STUDENT
-        // =====================
-
+        // ADD
         else {
 
           const res =
@@ -163,14 +151,12 @@ function Students() {
             )
 
           setStudents([
-
             ...students,
-
             res.data
           ])
 
           alert(
-            'Student Added Successfully'
+            'Student Added'
           )
         }
 
@@ -181,7 +167,13 @@ function Students() {
 
           roll: '',
 
-          course: ''
+          email: '',
+
+          phone: '',
+
+          course: '',
+
+          semester: ''
         })
 
         setEditId(null)
@@ -200,19 +192,19 @@ function Students() {
     }
 
   // =========================
-  // DELETE STUDENT
+  // DELETE
   // =========================
 
   const deleteStudent =
     async (id) => {
 
-      const confirmDelete =
-        window.confirm(
-          'Delete this student?'
+      if (
+        !window.confirm(
+          'Delete Student?'
         )
-
-      if (!confirmDelete)
+      ) {
         return
+      }
 
       try {
 
@@ -228,32 +220,22 @@ function Students() {
           }
         )
 
-        const updatedStudents =
+        setStudents(
+
           students.filter(
             (student) =>
               student._id !== id
           )
-
-        setStudents(
-          updatedStudents
-        )
-
-        alert(
-          'Student Deleted'
         )
 
       } catch (error) {
 
         console.log(error)
-
-        alert(
-          'Delete failed'
-        )
       }
     }
 
   // =========================
-  // EDIT STUDENT
+  // EDIT
   // =========================
 
   const editStudent =
@@ -261,11 +243,23 @@ function Students() {
 
       setFormData({
 
-        name: student.name,
+        name:
+          student.name || '',
 
-        roll: student.roll,
+        roll:
+          student.roll || '',
 
-        course: student.course
+        email:
+          student.email || '',
+
+        phone:
+          student.phone || '',
+
+        course:
+          student.course || '',
+
+        semester:
+          student.semester || ''
       })
 
       setEditId(student._id)
@@ -277,7 +271,7 @@ function Students() {
     }
 
   // =========================
-  // SEARCH FILTER
+  // SEARCH
   // =========================
 
   const filteredStudents =
@@ -285,7 +279,7 @@ function Students() {
       (student) =>
 
         student.name
-          .toLowerCase()
+          ?.toLowerCase()
           .includes(
             search.toLowerCase()
           )
@@ -293,7 +287,7 @@ function Students() {
         ||
 
         student.roll
-          .toLowerCase()
+          ?.toLowerCase()
           .includes(
             search.toLowerCase()
           )
@@ -305,7 +299,7 @@ function Students() {
 
       {/* TITLE */}
       <h1 className="text-5xl font-bold text-blue-600 mb-8">
-        Students
+        Students Management
       </h1>
 
       {/* FORM */}
@@ -320,57 +314,87 @@ function Students() {
 
           {/* NAME */}
           <input
-
             type="text"
-
             name="name"
-
             placeholder="Student Name"
-
             value={formData.name}
-
             onChange={handleChange}
-
             className="border p-3 rounded-lg"
-
             required
           />
 
           {/* ROLL */}
           <input
-
             type="text"
-
             name="roll"
-
             placeholder="Roll Number"
-
             value={formData.roll}
-
             onChange={handleChange}
-
             className="border p-3 rounded-lg"
-
             required
+          />
+
+          {/* EMAIL */}
+          <input
+            type="email"
+            name="email"
+            placeholder="Email Address"
+            value={formData.email}
+            onChange={handleChange}
+            className="border p-3 rounded-lg"
+          />
+
+          {/* PHONE */}
+          <input
+            type="text"
+            name="phone"
+            placeholder="Phone Number"
+            value={formData.phone}
+            onChange={handleChange}
+            className="border p-3 rounded-lg"
           />
 
           {/* COURSE */}
           <input
-
             type="text"
-
             name="course"
-
             placeholder="Course"
-
             value={formData.course}
-
             onChange={handleChange}
-
             className="border p-3 rounded-lg"
-
             required
           />
+
+          {/* SEMESTER */}
+          <select
+            name="semester"
+            value={formData.semester}
+            onChange={handleChange}
+            className="border p-3 rounded-lg"
+            required
+          >
+
+            <option value="">
+              Select Semester
+            </option>
+
+            <option value="1">
+              Semester 1
+            </option>
+
+            <option value="2">
+              Semester 2
+            </option>
+
+            <option value="3">
+              Semester 3
+            </option>
+
+            <option value="4">
+              Semester 4
+            </option>
+
+          </select>
 
         </div>
 
@@ -379,7 +403,7 @@ function Students() {
 
           type="submit"
 
-          className={`mt-4 text-white px-6 py-3 rounded-lg ${
+          className={`mt-6 text-white px-6 py-3 rounded-lg ${
             editId
               ? 'bg-yellow-500 hover:bg-yellow-600'
               : 'bg-blue-600 hover:bg-blue-700'
@@ -409,11 +433,11 @@ function Students() {
           )
         }
 
-        className="w-full border p-3 rounded-lg mb-4"
+        className="w-full border p-3 rounded-lg mb-6"
       />
 
       {/* TABLE */}
-      <div className="bg-white rounded-2xl shadow overflow-hidden">
+      <div className="bg-white rounded-2xl shadow overflow-auto">
 
         <table className="w-full">
 
@@ -430,7 +454,19 @@ function Students() {
               </th>
 
               <th className="p-4 text-left">
+                Email
+              </th>
+
+              <th className="p-4 text-left">
+                Phone
+              </th>
+
+              <th className="p-4 text-left">
                 Course
+              </th>
+
+              <th className="p-4 text-left">
+                Semester
               </th>
 
               <th className="p-4 text-left">
@@ -449,7 +485,7 @@ function Students() {
 
                 <td
 
-                  colSpan="4"
+                  colSpan="7"
 
                   className="p-6 text-center text-gray-500"
                 >
@@ -479,12 +515,23 @@ function Students() {
                     </td>
 
                     <td className="p-4">
+                      {student.email}
+                    </td>
+
+                    <td className="p-4">
+                      {student.phone}
+                    </td>
+
+                    <td className="p-4">
                       {student.course}
+                    </td>
+
+                    <td className="p-4">
+                      Semester {student.semester}
                     </td>
 
                     <td className="p-4 flex gap-2">
 
-                      {/* EDIT */}
                       <button
 
                         onClick={() =>
@@ -496,7 +543,6 @@ function Students() {
                         Edit
                       </button>
 
-                      {/* DELETE */}
                       <button
 
                         onClick={() =>
