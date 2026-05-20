@@ -8,14 +8,18 @@ router.post('/login', (req, res) => {
   const { username, password } =
     req.body
 
+  // ADMIN LOGIN
   if (
+
     username === 'admin' &&
     password === 'admin123'
+
   ) {
 
     const token = jwt.sign(
 
       {
+        username: 'admin',
         role: 'admin'
       },
 
@@ -34,6 +38,7 @@ router.post('/login', (req, res) => {
     })
   }
 
+  // INVALID LOGIN
   res.status(401).json({
 
     message: 'Invalid credentials'
