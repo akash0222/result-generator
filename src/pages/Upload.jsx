@@ -10,31 +10,39 @@ import API_URL from '../config'
 
 function Upload() {
 
-  const [data,
-    setData] =
-      useState([])
+  const [data, setData] =
+    useState([])
 
+  const [uploadType,
+    setUploadType] =
+      useState('students')
+
+  const token =
+    localStorage.getItem(
+      'token'
+    )
+
+  // =========================
   // READ EXCEL FILE
+  // =========================
+
   const handleFileUpload =
-    async (e) => {
+    (e) => {
 
       const file =
         e.target.files[0]
 
-      if (!file) {
-        return
-      }
+      if (!file) return
 
       const reader =
         new FileReader()
 
       reader.onload =
-        async (event) => {
+        (event) => {
 
           const binaryStr =
             event.target.result
 
-          // READ WORKBOOK
           const workbook =
             XLSX.read(
               binaryStr,
@@ -43,7 +51,6 @@ function Upload() {
               }
             )
 
-          // FIRST SHEET
           const sheetName =
             workbook.SheetNames[0]
 
@@ -52,7 +59,6 @@ function Upload() {
               sheetName
             ]
 
-          // CONVERT TO JSON
           const jsonData =
             XLSX.utils.sheet_to_json(
               sheet
@@ -66,37 +72,234 @@ function Upload() {
       )
     }
 
-  // SAVE TO DATABASE
+  // =========================
+  // DOWNLOAD TEMPLATE
+  // =========================
+
+  const downloadTemplate =
+    () => {
+
+      let templateData = []
+
+      // STUDENTS TEMPLATE
+      if (
+        uploadType === 'students'
+      ) {
+
+        templateData = [
+
+          {
+            name: 'Akash',
+            roll: 'PGDM001',
+            course: 'PGDM',
+            email:
+              'akash@gmail.com'
+          }
+        ]
+      }
+
+      // SUBJECTS TEMPLATE
+      else if (
+        uploadType === 'subjects'
+      ) {
+
+        templateData = [
+
+          {
+            name:
+              'Financial Management',
+
+            code: 'FM101',
+
+            credits: 3,
+
+            semester: 2
+          }
+        ]
+      }
+
+      // MARKS TEMPLATE
+      else {
+
+        templateData = [
+
+          {
+            roll: 'PGDM001',
+
+            subject: 'FM101',
+
+            internal: 18,
+
+            midterm: 20,
+
+            endterm: 45
+          }
+        ]
+      }
+
+      const worksheet =
+        XLSX.utils.json_to_sheet(
+          templateData
+        )
+
+      const workbook =
+        XLSX.utils.book_new()
+
+      XLSX.utils.book_append_sheet(
+
+        workbook,
+
+        worksheet,
+
+        'Template'
+      )
+
+      XLSX.writeFile(
+
+        workbook,
+
+        `${uploadType}_template.xlsx`
+      )
+    }
+
+  // =========================
+  // UPLOAD DATA
+  // =========================
+
   const uploadToDatabase =
     async () => {
 
       try {
 
-        for (
-          const student of data
+        // =====================
+        // STUDENTS
+        // =====================
+
+        if (
+          uploadType === 'students'
         ) {
 
-          await axios.post(
+          for (
+            const student of data
+          ) {
 
-            `${API_URL}/api/students`,
+            await axios.post(
 
-            {
+              `${API_URL}/api/students`,
 
-              name:
-                student.name,
+              {
 
-              roll:
-                student.roll,
+                name:
+                  student.name,
 
-              course:
-                student.course
-            }
-          )
+                roll:
+                  student.roll,
+
+                course:
+                  student.course,
+
+                email:
+                  student.email
+              },
+
+              {
+                headers: {
+                  Authorization:
+                    `Bearer ${token}`
+                }
+              }
+            )
+          }
+        }
+
+        // =====================
+        // SUBJECTS
+        // =====================
+
+        else if (
+          uploadType === 'subjects'
+        ) {
+
+          for (
+            const subject of data
+          ) {
+
+            await axios.post(
+
+              `${API_URL}/api/subjects`,
+
+              {
+
+                name:
+                  subject.name,
+
+                code:
+                  subject.code,
+
+                credits:
+                  subject.credits,
+
+                semester:
+                  subject.semester
+              },
+
+              {
+                headers: {
+                  Authorization:
+                    `Bearer ${token}`
+                }
+              }
+            )
+          }
+        }
+
+        // =====================
+        // MARKS
+        // =====================
+
+        else {
+
+          for (
+            const mark of data
+          ) {
+
+            await axios.post(
+
+              `${API_URL}/api/marks`,
+
+              {
+
+                roll:
+                  mark.roll,
+
+                subject:
+                  mark.subject,
+
+                internal:
+                  mark.internal,
+
+                midterm:
+                  mark.midterm,
+
+                endterm:
+                  mark.endterm
+              },
+
+              {
+                headers: {
+                  Authorization:
+                    `Bearer ${token}`
+                }
+              }
+            )
+          }
         }
 
         alert(
-          'Excel data uploaded successfully'
+          `${uploadType} uploaded successfully`
         )
+
+        setData([])
 
       } catch (error) {
 
@@ -106,7 +309,7 @@ function Upload() {
 
           error.response?.data?.message ||
 
-          'Upload failed'
+          'Upload Failed'
         )
       }
     }
@@ -115,13 +318,53 @@ function Upload() {
 
     <div className="min-h-screen bg-gray-100 p-6">
 
+      {/* TITLE */}
       <h1 className="text-4xl font-bold text-orange-600 mb-6">
-        Excel Upload
+        Excel Upload System
       </h1>
 
-      {/* UPLOAD BOX */}
+      {/* MAIN BOX */}
       <div className="bg-white p-6 rounded-xl shadow mb-6">
 
+        {/* SELECT TYPE */}
+        <select
+
+          value={uploadType}
+
+          onChange={(e) =>
+            setUploadType(
+              e.target.value
+            )
+          }
+
+          className="border p-3 rounded-lg mb-4 w-full"
+        >
+
+          <option value="students">
+            Upload Students
+          </option>
+
+          <option value="subjects">
+            Upload Subjects
+          </option>
+
+          <option value="marks">
+            Upload Marks
+          </option>
+
+        </select>
+
+        {/* DOWNLOAD TEMPLATE */}
+        <button
+
+          onClick={downloadTemplate}
+
+          className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg mr-4 mb-4"
+        >
+          Download Template
+        </button>
+
+        {/* FILE INPUT */}
         <input
 
           type="file"
@@ -130,9 +373,10 @@ function Upload() {
 
           onChange={handleFileUpload}
 
-          className="mb-4"
+          className="mb-4 block"
         />
 
+        {/* UPLOAD BUTTON */}
         <button
 
           onClick={uploadToDatabase}
@@ -144,8 +388,8 @@ function Upload() {
 
       </div>
 
-      {/* PREVIEW TABLE */}
-      <div className="bg-white rounded-xl shadow overflow-hidden">
+      {/* PREVIEW */}
+      <div className="bg-white rounded-xl shadow overflow-auto">
 
         <table className="w-full">
 
@@ -153,18 +397,19 @@ function Upload() {
 
             <tr>
 
-              <th className="p-4 text-left">
-                Name
-              </th>
+              {data.length > 0 &&
 
-              <th className="p-4 text-left">
-                Roll
-              </th>
+                Object.keys(
+                  data[0]
+                ).map((key) => (
 
-              <th className="p-4 text-left">
-                Course
-              </th>
-
+                  <th
+                    key={key}
+                    className="p-4 text-left capitalize"
+                  >
+                    {key}
+                  </th>
+                ))}
             </tr>
 
           </thead>
@@ -172,24 +417,29 @@ function Upload() {
           <tbody>
 
             {data.map(
-              (student, index) => (
+              (row, index) => (
 
                 <tr
                   key={index}
                   className="border-t"
                 >
 
-                  <td className="p-4">
-                    {student.name}
-                  </td>
+                  {Object.values(
+                    row
+                  ).map(
+                    (
+                      value,
+                      i
+                    ) => (
 
-                  <td className="p-4">
-                    {student.roll}
-                  </td>
-
-                  <td className="p-4">
-                    {student.course}
-                  </td>
+                      <td
+                        key={i}
+                        className="p-4"
+                      >
+                        {value}
+                      </td>
+                    )
+                  )}
 
                 </tr>
               )
