@@ -4,21 +4,32 @@ const publishSchema =
   new mongoose.Schema({
 
     semester: {
+
       type: Number,
-      required: true
+
+      required: true,
+
+      unique: true
     },
 
     published: {
+
       type: Boolean,
+
       default: false
     }
 
+  }, {
+
+    timestamps: true
   })
 
-const PublishResult =
+const Publish =
   mongoose.model(
-    'PublishResult',
+
+    'Publish',
+
     publishSchema
   )
 
-export default PublishResult
+export default Publish

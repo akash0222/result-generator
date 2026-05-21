@@ -1,7 +1,9 @@
 import PublishResult
 from '../models/PublishResult.js'
 
-// GET STATUS
+// ======================
+// GET PUBLISH STATUS
+// ======================
 export const getPublishStatus =
   async (req, res) => {
 
@@ -10,17 +12,30 @@ export const getPublishStatus =
       const status =
         await PublishResult.find()
 
-      res.json(status)
+      res.json({
+
+        success: true,
+
+        data: status
+      })
 
     } catch (error) {
 
+      console.log(error)
+
       res.status(500).json({
-        message: error.message
+
+        success: false,
+
+        message:
+          error.message
       })
     }
   }
 
+// ======================
 // PUBLISH RESULT
+// ======================
 export const publishResult =
   async (req, res) => {
 
@@ -29,8 +44,21 @@ export const publishResult =
       const { semester } =
         req.body
 
+      // VALIDATION
+      if (!semester) {
+
+        return res.status(400).json({
+
+          success: false,
+
+          message:
+            'Semester is required'
+        })
+      }
+
       let result =
         await PublishResult.findOne({
+
           semester
         })
 
@@ -41,31 +69,44 @@ export const publishResult =
           await PublishResult.create({
 
             semester,
+
             published: true
           })
+      }
 
-      } else {
+      // UPDATE
+      else {
 
-        // UPDATE
         result.published = true
 
         await result.save()
       }
 
       res.json({
+
+        success: true,
+
         message:
           `Semester ${semester} result published`
       })
 
     } catch (error) {
 
+      console.log(error)
+
       res.status(500).json({
-        message: error.message
+
+        success: false,
+
+        message:
+          error.message
       })
     }
   }
 
-// UNPUBLISH
+// ======================
+// UNPUBLISH RESULT
+// ======================
 export const unpublishResult =
   async (req, res) => {
 
@@ -74,16 +115,33 @@ export const unpublishResult =
       const { semester } =
         req.body
 
+      // VALIDATION
+      if (!semester) {
+
+        return res.status(400).json({
+
+          success: false,
+
+          message:
+            'Semester is required'
+        })
+      }
+
       const result =
         await PublishResult.findOne({
+
           semester
         })
 
+      // NOT FOUND
       if (!result) {
 
         return res.status(404).json({
+
+          success: false,
+
           message:
-            'Result status not found'
+            'Semester not found'
         })
       }
 
@@ -92,14 +150,23 @@ export const unpublishResult =
       await result.save()
 
       res.json({
+
+        success: true,
+
         message:
           `Semester ${semester} unpublished`
       })
 
     } catch (error) {
 
+      console.log(error)
+
       res.status(500).json({
-        message: error.message
+
+        success: false,
+
+        message:
+          error.message
       })
     }
   }
