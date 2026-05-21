@@ -1,6 +1,8 @@
 import Student from '../models/Student.js'
 
-// GET ALL STUDENTS
+// ======================
+// GET STUDENTS
+// ======================
 export const getStudents =
   async (req, res) => {
 
@@ -19,7 +21,9 @@ export const getStudents =
     }
   }
 
+// ======================
 // ADD STUDENT
+// ======================
 export const addStudent =
   async (req, res) => {
 
@@ -28,14 +32,18 @@ export const addStudent =
       const {
         name,
         roll,
-        course
+        email,
+        phone,
+        course,
+        semester
       } = req.body
 
-      // CHECK DUPLICATE
-      const exists =
-        await Student.findOne({ roll })
+      const existingStudent =
+        await Student.findOne({
+          roll
+        })
 
-      if (exists) {
+      if (existingStudent) {
 
         return res.status(400).json({
           message:
@@ -43,20 +51,25 @@ export const addStudent =
         })
       }
 
-      // CREATE STUDENT
       const student =
-        new Student({
+        await Student.create({
+
           name,
+
           roll,
-          course
+
+          email:
+            email || '',
+
+          phone:
+            phone || '',
+
+          course,
+
+          semester
         })
 
-      const savedStudent =
-        await student.save()
-
-      res.status(201).json(
-        savedStudent
-      )
+      res.status(201).json(student)
 
     } catch (error) {
 
@@ -66,17 +79,13 @@ export const addStudent =
     }
   }
 
+// ======================
 // UPDATE STUDENT
+// ======================
 export const updateStudent =
   async (req, res) => {
 
     try {
-
-      const {
-        name,
-        roll,
-        course
-      } = req.body
 
       const student =
         await Student.findById(
@@ -91,10 +100,27 @@ export const updateStudent =
         })
       }
 
-      // UPDATE DATA
-      student.name = name
-      student.roll = roll
-      student.course = course
+      student.name =
+        req.body.name ||
+        student.name
+
+      student.roll =
+        req.body.roll ||
+        student.roll
+
+      student.email =
+        req.body.email || ''
+
+      student.phone =
+        req.body.phone || ''
+
+      student.course =
+        req.body.course ||
+        student.course
+
+      student.semester =
+        req.body.semester ||
+        student.semester
 
       const updatedStudent =
         await student.save()
@@ -109,7 +135,9 @@ export const updateStudent =
     }
   }
 
+// ======================
 // DELETE STUDENT
+// ======================
 export const deleteStudent =
   async (req, res) => {
 

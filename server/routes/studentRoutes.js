@@ -1,10 +1,12 @@
 import express from 'express'
 
 import {
+
   getStudents,
   addStudent,
-  deleteStudent,
-  updateStudent
+  updateStudent,
+  deleteStudent
+
 } from '../controllers/studentController.js'
 
 const router =
@@ -16,13 +18,13 @@ router.get(
   getStudents
 )
 
-// POST
+// ADD
 router.post(
   '/',
   addStudent
 )
 
-// PUT
+// UPDATE
 router.put(
   '/:id',
   updateStudent
