@@ -124,7 +124,7 @@ function Login() {
         className="bg-white p-8 rounded-xl shadow w-full max-w-md"
       >
 
-        <h1 className="text-4xl font-bold text-blue-900 text-center mb-6">
+        <h1 className="text-4xl font-bold text-blue-700 text-center mb-6">
           ERP Login
         </h1>
 
@@ -199,7 +199,7 @@ function Login() {
 
         <button
 
-          className="w-full bg-blue-900 text-white py-3 rounded-lg"
+          className="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700"
         >
           Login
         </button>
