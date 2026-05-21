@@ -1,41 +1,114 @@
 import sendEmail
 from '../utils/sendEmail.js'
 
+// ======================
+// SEND RESULT EMAIL
+// ======================
 export const sendResultEmail =
   async (req, res) => {
 
     try {
 
       const {
+
         email,
-        studentName
+        studentName,
+        semester
+
       } = req.body
+
+      // ======================
+      // VALIDATION
+      // ======================
+
+      if (!email) {
+
+        return res.status(400).json({
+
+          success: false,
+
+          message:
+            'Student email is required'
+        })
+      }
+
+      if (!studentName) {
+
+        return res.status(400).json({
+
+          success: false,
+
+          message:
+            'Student name is required'
+        })
+      }
+
+      // ======================
+      // EMAIL SUBJECT
+      // ======================
+
+      const subject =
+        `Semester ${semester || ''} Result Published`
+
+      // ======================
+      // EMAIL MESSAGE
+      // ======================
+
+      const message =
+
+`Hello ${studentName},
+
+Your semester result has been officially published on the ERP portal.
+
+You can now:
+
+• Login to your student dashboard
+• View your marks
+• Download your official grade card
+• Check SGPA / CGPA
+
+Portal Access:
+ERP Student Dashboard
+
+Regards,
+Controller of Examination
+IILM Institute for Higher Education`
+
+      // ======================
+      // SEND EMAIL
+      // ======================
 
       await sendEmail(
 
         email,
 
-        'Result Published',
+        subject,
 
-        `Hello ${studentName},
-
-Your semester result has been published.
-
-Please login to the ERP portal to download your grade card.
-
-Regards,
-IILM ERP`
+        message
       )
 
+      // ======================
+      // RESPONSE
+      // ======================
+
       res.json({
+
+        success: true,
+
         message:
-          'Email sent successfully'
+          'Result email sent successfully'
       })
 
     } catch (error) {
 
+      console.log(error)
+
       res.status(500).json({
-        message: error.message
+
+        success: false,
+
+        message:
+          error.message
       })
     }
   }
