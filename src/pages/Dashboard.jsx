@@ -1,5 +1,18 @@
-import { useEffect, useState } from 'react'
+import {
+
+  useEffect,
+  useState
+
+} from 'react'
+
 import axios from 'axios'
+
+import {
+
+  useNavigate
+
+} from 'react-router-dom'
+
 import API_URL from '../config'
 
 function Dashboard() {
@@ -20,9 +33,19 @@ function Dashboard() {
   const [loading, setLoading] =
     useState(true)
 
+  const [error, setError] =
+    useState('')
+
   const [selectedSemester,
     setSelectedSemester] =
       useState('All')
+
+  // =========================
+  // NAVIGATE
+  // =========================
+
+  const navigate =
+    useNavigate()
 
   // =========================
   // TOKEN
@@ -37,7 +60,26 @@ function Dashboard() {
 
   useEffect(() => {
 
+    // NO TOKEN
+    if (!token) {
+
+      navigate('/login')
+
+      return
+    }
+
     fetchAllData()
+
+    // AUTO REFRESH
+    const interval =
+      setInterval(() => {
+
+        fetchAllData()
+
+      }, 10000)
+
+    return () =>
+      clearInterval(interval)
 
   }, [])
 
@@ -52,6 +94,8 @@ function Dashboard() {
 
         setLoading(true)
 
+        setError('')
+
         await Promise.all([
 
           fetchStudents(),
@@ -65,6 +109,10 @@ function Dashboard() {
       } catch (error) {
 
         console.log(error)
+
+        setError(
+          'Failed to load dashboard'
+        )
 
       } finally {
 
@@ -88,13 +136,18 @@ function Dashboard() {
 
             {
               headers: {
+
                 Authorization:
                   `Bearer ${token}`
               }
             }
           )
 
-        setStudents(res.data)
+        setStudents(
+
+          res.data.data ||
+          res.data
+        )
 
       } catch (error) {
 
@@ -122,13 +175,18 @@ function Dashboard() {
 
             {
               headers: {
+
                 Authorization:
                   `Bearer ${token}`
               }
             }
           )
 
-        setSubjects(res.data)
+        setSubjects(
+
+          res.data.data ||
+          res.data
+        )
 
       } catch (error) {
 
@@ -156,13 +214,18 @@ function Dashboard() {
 
             {
               headers: {
+
                 Authorization:
                   `Bearer ${token}`
               }
             }
           )
 
-        setMarks(res.data)
+        setMarks(
+
+          res.data.data ||
+          res.data
+        )
 
       } catch (error) {
 
@@ -179,18 +242,65 @@ function Dashboard() {
   // =========================
 
   const filteredMarks =
+
     selectedSemester === 'All'
 
       ? marks
 
-      : marks.filter(
-          (m) =>
-            String(m.semester) ===
+      : marks.filter((mark) => {
+
+          const subject =
+            subjects.find(
+
+              (sub) =>
+
+                sub.name ===
+                mark.subject ||
+
+                sub.subject ===
+                mark.subject
+            )
+
+          return (
+
+            String(
+              subject?.semester
+            ) ===
             selectedSemester
-        )
+          )
+        })
 
   // =========================
   // GPA CALCULATION
+  // =========================
+
+  const getGradePoint =
+    (grade) => {
+
+      switch (grade) {
+
+        case 'A+':
+          return 10
+
+        case 'A':
+          return 9
+
+        case 'B+':
+          return 8
+
+        case 'B':
+          return 7
+
+        case 'C':
+          return 6
+
+        default:
+          return 0
+      }
+    }
+
+  // =========================
+  // AVERAGE SGPA
   // =========================
 
   const calculateAverageSGPA =
@@ -199,6 +309,7 @@ function Dashboard() {
       if (
         filteredMarks.length === 0
       ) {
+
         return 0
       }
 
@@ -207,37 +318,18 @@ function Dashboard() {
       filteredMarks.forEach(
         (mark) => {
 
-          switch (mark.grade) {
-
-            case 'A+':
-              total += 10
-              break
-
-            case 'A':
-              total += 9
-              break
-
-            case 'B+':
-              total += 8
-              break
-
-            case 'B':
-              total += 7
-              break
-
-            case 'C':
-              total += 6
-              break
-
-            default:
-              total += 0
-          }
+          total +=
+            getGradePoint(
+              mark.grade
+            )
         }
       )
 
       return (
+
         total /
         filteredMarks.length
+
       ).toFixed(2)
     }
 
@@ -246,25 +338,34 @@ function Dashboard() {
   // =========================
 
   const failedStudents =
+
     filteredMarks.filter(
-      (m) => m.grade === 'F'
+
+      (m) =>
+        m.grade === 'F'
     ).length
 
   // =========================
-  // PASS PERCENTAGE
+  // PASS %
   // =========================
 
   const passPercentage =
+
     filteredMarks.length > 0
 
       ? (
+
           (
+
             (
               filteredMarks.length -
               failedStudents
             ) /
+
             filteredMarks.length
+
           ) * 100
+
         ).toFixed(2)
 
       : 0
@@ -273,12 +374,56 @@ function Dashboard() {
   // TOPPER
   // =========================
 
+  const studentSGPAList =
+
+    students.map((student) => {
+
+      const studentMarks =
+        marks.filter(
+
+          (m) =>
+            m.roll ===
+            student.roll
+        )
+
+      let total = 0
+
+      studentMarks.forEach(
+        (mark) => {
+
+          total +=
+            getGradePoint(
+              mark.grade
+            )
+        }
+      )
+
+      const sgpa =
+
+        studentMarks.length > 0
+
+          ? total /
+            studentMarks.length
+
+          : 0
+
+      return {
+
+        ...student,
+
+        sgpa
+      }
+    })
+
   const topper =
-    students.length > 0
 
-      ? students[0]
+    studentSGPAList.sort(
 
-      : null
+      (a, b) =>
+
+        b.sgpa - a.sgpa
+
+    )[0]
 
   // =========================
   // LOADING UI
@@ -291,22 +436,40 @@ function Dashboard() {
       <div className="min-h-screen flex items-center justify-center bg-gray-100">
 
         <div className="text-3xl font-bold text-blue-600">
+
           Loading Dashboard...
+
         </div>
 
       </div>
     )
   }
 
+  // =========================
+  // UI
+  // =========================
+
   return (
 
     <div className="min-h-screen bg-gray-100 p-6">
+
+      {/* ERROR */}
+      {error && (
+
+        <div className="bg-red-100 text-red-600 p-4 rounded-xl mb-6">
+
+          {error}
+
+        </div>
+      )}
 
       {/* HEADER */}
       <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-8">
 
         <h1 className="text-5xl font-bold text-blue-600">
+
           Dashboard
+
         </h1>
 
         {/* SEMESTER FILTER */}
@@ -354,11 +517,15 @@ function Dashboard() {
         <div className="bg-white p-6 rounded-2xl shadow">
 
           <h2 className="text-gray-500 text-lg">
+
             Total Students
+
           </h2>
 
           <p className="text-5xl font-bold text-blue-600 mt-3">
+
             {students.length}
+
           </p>
 
         </div>
@@ -367,11 +534,15 @@ function Dashboard() {
         <div className="bg-white p-6 rounded-2xl shadow">
 
           <h2 className="text-gray-500 text-lg">
+
             Total Subjects
+
           </h2>
 
           <p className="text-5xl font-bold text-green-600 mt-3">
+
             {subjects.length}
+
           </p>
 
         </div>
@@ -380,11 +551,15 @@ function Dashboard() {
         <div className="bg-white p-6 rounded-2xl shadow">
 
           <h2 className="text-gray-500 text-lg">
+
             Marks Entries
+
           </h2>
 
           <p className="text-5xl font-bold text-purple-600 mt-3">
+
             {filteredMarks.length}
+
           </p>
 
         </div>
@@ -393,11 +568,15 @@ function Dashboard() {
         <div className="bg-white p-6 rounded-2xl shadow">
 
           <h2 className="text-gray-500 text-lg">
+
             Average GPA
+
           </h2>
 
           <p className="text-5xl font-bold text-indigo-600 mt-3">
+
             {calculateAverageSGPA()}
+
           </p>
 
         </div>
@@ -411,11 +590,15 @@ function Dashboard() {
         <div className="bg-white p-6 rounded-2xl shadow">
 
           <h2 className="text-gray-500 text-lg">
+
             Failed Students
+
           </h2>
 
           <p className="text-5xl font-bold text-red-600 mt-3">
+
             {failedStudents}
+
           </p>
 
         </div>
@@ -424,11 +607,15 @@ function Dashboard() {
         <div className="bg-white p-6 rounded-2xl shadow">
 
           <h2 className="text-gray-500 text-lg">
+
             Pass Percentage
+
           </h2>
 
           <p className="text-5xl font-bold text-green-600 mt-3">
+
             {passPercentage}%
+
           </p>
 
         </div>
@@ -437,7 +624,9 @@ function Dashboard() {
         <div className="bg-white p-6 rounded-2xl shadow">
 
           <h2 className="text-gray-500 text-lg">
+
             Topper
+
           </h2>
 
           <p className="text-2xl font-bold text-yellow-600 mt-3">
@@ -448,6 +637,17 @@ function Dashboard() {
 
           </p>
 
+          {topper && (
+
+            <p className="text-lg text-gray-600 mt-2">
+
+              SGPA:
+              {' '}
+              {topper.sgpa.toFixed(2)}
+
+            </p>
+          )}
+
         </div>
 
       </div>
@@ -456,30 +656,47 @@ function Dashboard() {
       <div className="bg-white p-6 rounded-2xl shadow mt-8">
 
         <h2 className="text-2xl font-bold text-gray-700 mb-4">
+
           Recent Activity
+
         </h2>
 
         <div className="space-y-3">
 
           <div className="border p-4 rounded-xl">
+
             Students Added:
+
             <span className="font-bold text-blue-600 ml-2">
+
               {students.length}
+
             </span>
+
           </div>
 
           <div className="border p-4 rounded-xl">
+
             Subjects Created:
+
             <span className="font-bold text-green-600 ml-2">
+
               {subjects.length}
+
             </span>
+
           </div>
 
           <div className="border p-4 rounded-xl">
+
             Marks Uploaded:
+
             <span className="font-bold text-purple-600 ml-2">
+
               {marks.length}
+
             </span>
+
           </div>
 
         </div>

@@ -7,7 +7,9 @@ const facultySchema =
 
       type: String,
 
-      required: true
+      required: true,
+
+      trim: true
     },
 
     email: {
@@ -16,36 +18,54 @@ const facultySchema =
 
       required: true,
 
-      unique: true
+      unique: true,
+
+      lowercase: true,
+
+      trim: true
     },
 
     password: {
 
       type: String,
 
-      required: true
+      required: true,
+
+      select: false
     },
 
     subject: {
 
       type: String,
 
-      required: true
+      required: true,
+
+      trim: true
     },
 
     role: {
 
       type: String,
 
+      enum: [
+
+        'faculty',
+        'admin'
+      ],
+
       default: 'faculty'
     }
 
+  }, {
+
+    timestamps: true
   })
 
 const Faculty =
   mongoose.model(
 
     'Faculty',
+
     facultySchema
   )
 

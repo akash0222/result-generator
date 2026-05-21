@@ -1,23 +1,135 @@
 import * as XLSX from 'xlsx'
 
-export const readExcelFile = (file, callback) => {
-  const reader = new FileReader()
+// ======================
+// READ EXCEL FILE
+// ======================
 
-  reader.onload = (e) => {
-    const data = e.target.result
+export const readExcelFile = (
 
-    const workbook = XLSX.read(data, {
-      type: 'binary'
-    })
+  file,
+  callback
 
-    const sheetName = workbook.SheetNames[0]
+) => {
 
-    const worksheet = workbook.Sheets[sheetName]
+  // ======================
+  // VALIDATE FILE
+  // ======================
 
-    const jsonData = XLSX.utils.sheet_to_json(worksheet)
+  if (!file) {
 
-    callback(jsonData)
+    alert(
+      'Please select a file'
+    )
+
+    return
   }
 
-  reader.readAsBinaryString(file)
+  // ======================
+  // VALID FILE TYPES
+  // ======================
+
+  const validExtensions = [
+
+    'xlsx',
+    'xls'
+  ]
+
+  const fileExtension =
+    file.name
+      .split('.')
+      .pop()
+      .toLowerCase()
+
+  if (
+
+    !validExtensions.includes(
+      fileExtension
+    )
+
+  ) {
+
+    alert(
+
+      'Only Excel files are allowed'
+    )
+
+    return
+  }
+
+  // ======================
+  // FILE READER
+  // ======================
+
+  const reader =
+    new FileReader()
+
+  reader.onload = (e) => {
+
+    try {
+
+      const data =
+        e.target.result
+
+      // ======================
+      // READ WORKBOOK
+      // ======================
+
+      const workbook =
+        XLSX.read(data, {
+
+          type: 'binary'
+        })
+
+      // ======================
+      // FIRST SHEET
+      // ======================
+
+      const sheetName =
+        workbook.SheetNames[0]
+
+      const worksheet =
+        workbook.Sheets[sheetName]
+
+      // ======================
+      // CONVERT JSON
+      // ======================
+
+      const jsonData =
+
+        XLSX.utils.sheet_to_json(
+          worksheet
+        )
+
+      // EMPTY FILE
+      if (
+        jsonData.length === 0
+      ) {
+
+        alert(
+          'Excel file is empty'
+        )
+
+        return
+      }
+
+      // CALLBACK
+      callback(jsonData)
+
+    } catch (error) {
+
+      console.log(error)
+
+      alert(
+        'Error reading Excel file'
+      )
+    }
+  }
+
+  // ======================
+  // READ FILE
+  // ======================
+
+  reader.readAsBinaryString(
+    file
+  )
 }

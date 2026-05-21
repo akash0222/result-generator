@@ -1,74 +1,156 @@
-import { useEffect, useState } from 'react'
+import {
+
+  useEffect,
+  useState
+
+} from 'react'
+
+import axios from 'axios'
+
+import API_URL from '../config'
 
 function CGPA() {
 
-  const [students, setStudents] = useState([])
-  const [subjects, setSubjects] = useState([])
-  const [marksData, setMarksData] = useState([])
+  const [students, setStudents] =
+    useState([])
+
+  const [subjects, setSubjects] =
+    useState([])
+
+  const [marksData, setMarksData] =
+    useState([])
+
+  const [loading, setLoading] =
+    useState(true)
+
+  // ======================
+  // LOAD DATA
+  // ======================
 
   useEffect(() => {
 
-    setStudents(
-      JSON.parse(localStorage.getItem('students')) || []
-    )
-
-    setSubjects(
-      JSON.parse(localStorage.getItem('subjects')) || []
-    )
-
-    setMarksData(
-      JSON.parse(localStorage.getItem('marks')) || []
-    )
+    fetchData()
 
   }, [])
 
-  // GRADE POINTS
-  const getGradePoint = (grade) => {
+  const fetchData = async () => {
 
-    switch (grade) {
+    try {
 
-      case 'A+':
-        return 10
+      // STUDENTS
+      const studentsRes =
+        await axios.get(
 
-      case 'A':
-        return 9
+          `${API_URL}/api/students`
+        )
 
-      case 'B+':
-        return 8
+      // SUBJECTS
+      const subjectsRes =
+        await axios.get(
 
-      case 'B':
-        return 7
+          `${API_URL}/api/subjects`
+        )
 
-      case 'C':
-        return 6
+      // MARKS
+      const marksRes =
+        await axios.get(
 
-      default:
-        return 0
+          `${API_URL}/api/marks`
+        )
+
+      setStudents(
+        studentsRes.data
+      )
+
+      setSubjects(
+        subjectsRes.data
+      )
+
+      setMarksData(
+        marksRes.data
+      )
+
+      setLoading(false)
+
+    } catch (error) {
+
+      console.log(error)
+
+      setLoading(false)
     }
   }
 
-  // CALCULATE SEMESTER SGPA
+  // ======================
+  // GRADE POINTS
+  // ======================
+
+  const getGradePoint =
+    (grade) => {
+
+      switch (grade) {
+
+        case 'A+':
+          return 10
+
+        case 'A':
+          return 9
+
+        case 'B+':
+          return 8
+
+        case 'B':
+          return 7
+
+        case 'C':
+          return 6
+
+        default:
+          return 0
+      }
+    }
+
+  // ======================
+  // SEMESTER SGPA
+  // ======================
+
   const calculateSemesterSGPA = (
+
     roll,
     semester
+
   ) => {
 
+    // SUBJECTS OF SEMESTER
     const semesterSubjects =
       subjects.filter(
+
         (sub) =>
-          Number(sub.semester) === semester
+
+          Number(sub.semester) ===
+          Number(semester)
       )
 
     let totalCredits = 0
+
     let weightedPoints = 0
 
     semesterSubjects.forEach((subject) => {
 
+      // FIND MARK
       const mark =
         marksData.find(
+
           (m) =>
+
             m.roll === roll &&
-            m.subject === subject.subject
+
+            (
+              m.subject ===
+              subject.name ||
+
+              m.subject ===
+              subject.subject
+            )
         )
 
       if (mark) {
@@ -77,52 +159,109 @@ function CGPA() {
           Number(subject.credits)
 
         const gradePoint =
-          getGradePoint(mark.grade)
+          getGradePoint(
+            mark.grade
+          )
 
-        totalCredits += credits
+        totalCredits +=
+          credits
 
         weightedPoints +=
-          credits * gradePoint
-      }
 
+          credits *
+          gradePoint
+      }
     })
 
     if (totalCredits === 0) {
+
       return 0
     }
 
     return (
-      weightedPoints / totalCredits
+
+      weightedPoints /
+      totalCredits
     )
   }
 
+  // ======================
   // CALCULATE CGPA
-  const calculateCGPA = (roll) => {
+  // ======================
 
-    const semesters =
-      [...new Set(
-        subjects.map(
-          (subject) =>
-            Number(subject.semester)
-        )
-      )]
+  const calculateCGPA =
+    (roll) => {
 
-    let totalSGPA = 0
+      // UNIQUE SEMESTERS
+      const semesters =
 
-    semesters.forEach((semester) => {
+        [...new Set(
 
-      totalSGPA +=
-        calculateSemesterSGPA(
-          roll,
-          semester
-        )
+          subjects.map(
 
-    })
+            (subject) =>
+
+              Number(
+                subject.semester
+              )
+          )
+        )]
+
+      let totalSGPA = 0
+
+      let countedSemesters = 0
+
+      semesters.forEach((semester) => {
+
+        const sgpa =
+          calculateSemesterSGPA(
+
+            roll,
+            semester
+          )
+
+        if (sgpa > 0) {
+
+          totalSGPA += sgpa
+
+          countedSemesters++
+        }
+      })
+
+      if (countedSemesters === 0) {
+
+        return 0
+      }
+
+      return (
+
+        totalSGPA /
+        countedSemesters
+
+      ).toFixed(2)
+    }
+
+  // ======================
+  // LOADING
+  // ======================
+
+  if (loading) {
 
     return (
-      totalSGPA / semesters.length
-    ).toFixed(2)
+
+      <div className="min-h-screen flex items-center justify-center">
+
+        <h1 className="text-3xl font-bold text-pink-600">
+          Loading CGPA...
+        </h1>
+
+      </div>
+    )
   }
+
+  // ======================
+  // UI
+  // ======================
 
   return (
 
@@ -162,32 +301,36 @@ function CGPA() {
 
           <tbody>
 
-            {students.map((student, index) => (
+            {students.map(
 
-              <tr
-                key={index}
-                className="border-t"
-              >
+              (student) => (
 
-                <td className="p-4">
-                  {student.name}
-                </td>
+                <tr
+                  key={student._id}
+                  className="border-t"
+                >
 
-                <td className="p-4">
-                  {student.roll}
-                </td>
+                  <td className="p-4">
+                    {student.name}
+                  </td>
 
-                <td className="p-4">
-                  {student.course}
-                </td>
+                  <td className="p-4">
+                    {student.roll}
+                  </td>
 
-                <td className="p-4 font-bold text-pink-600">
-                  {calculateCGPA(student.roll)}
-                </td>
+                  <td className="p-4">
+                    {student.course}
+                  </td>
 
-              </tr>
+                  <td className="p-4 font-bold text-pink-600">
+                    {calculateCGPA(
+                      student.roll
+                    )}
+                  </td>
 
-            ))}
+                </tr>
+              )
+            )}
 
           </tbody>
 

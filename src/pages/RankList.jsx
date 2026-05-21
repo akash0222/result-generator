@@ -1,108 +1,229 @@
-import { useEffect, useState } from 'react'
+import {
+
+  useEffect,
+  useState
+
+} from 'react'
+
+import axios from 'axios'
+
+import API_URL from '../config'
 
 function RankList() {
 
-  const [students, setStudents] = useState([])
-  const [subjects, setSubjects] = useState([])
-  const [marksData, setMarksData] = useState([])
+  const [students, setStudents] =
+    useState([])
 
+  const [subjects, setSubjects] =
+    useState([])
+
+  const [marksData, setMarksData] =
+    useState([])
+
+  const [loading, setLoading] =
+    useState(true)
+
+  // ======================
   // LOAD DATA
+  // ======================
+
   useEffect(() => {
 
-    const savedStudents =
-      JSON.parse(localStorage.getItem('students')) || []
-
-    const savedSubjects =
-      JSON.parse(localStorage.getItem('subjects')) || []
-
-    const savedMarks =
-      JSON.parse(localStorage.getItem('marks')) || []
-
-    setStudents(savedStudents)
-    setSubjects(savedSubjects)
-    setMarksData(savedMarks)
+    fetchData()
 
   }, [])
 
-  // GRADE POINTS
-  const getGradePoint = (grade) => {
+  const fetchData = async () => {
 
-    switch (grade) {
+    try {
 
-      case 'A+':
-        return 10
+      // STUDENTS
+      const studentsRes =
+        await axios.get(
 
-      case 'A':
-        return 9
+          `${API_URL}/api/students`
+        )
 
-      case 'B+':
-        return 8
+      // SUBJECTS
+      const subjectsRes =
+        await axios.get(
 
-      case 'B':
-        return 7
+          `${API_URL}/api/subjects`
+        )
 
-      case 'C':
-        return 6
+      // MARKS
+      const marksRes =
+        await axios.get(
 
-      default:
-        return 0
-    }
-  }
+          `${API_URL}/api/marks`
+        )
 
-  // SGPA
-  const calculateSGPA = (roll) => {
-
-    const studentMarks =
-      marksData.filter(
-        (mark) => mark.roll === roll
+      setStudents(
+        studentsRes.data
       )
 
-    let totalCredits = 0
-    let weightedPoints = 0
+      setSubjects(
+        subjectsRes.data
+      )
 
-    studentMarks.forEach((mark) => {
+      setMarksData(
+        marksRes.data
+      )
 
-      const subject =
-        subjects.find(
-          (sub) =>
-            sub.subject === mark.subject
-        )
+      setLoading(false)
 
-      if (subject) {
+    } catch (error) {
 
-        const credits =
-          Number(subject.credits)
+      console.log(error)
 
-        const gradePoint =
-          getGradePoint(mark.grade)
-
-        totalCredits += credits
-
-        weightedPoints +=
-          credits * gradePoint
-      }
-
-    })
-
-    if (totalCredits === 0) {
-      return 0
+      setLoading(false)
     }
-
-    return (
-      weightedPoints / totalCredits
-    ).toFixed(2)
   }
 
-  // SORT STUDENTS BY SGPA
+  // ======================
+  // GRADE POINTS
+  // ======================
+
+  const getGradePoint =
+    (grade) => {
+
+      switch (grade) {
+
+        case 'A+':
+          return 10
+
+        case 'A':
+          return 9
+
+        case 'B+':
+          return 8
+
+        case 'B':
+          return 7
+
+        case 'C':
+          return 6
+
+        default:
+          return 0
+      }
+    }
+
+  // ======================
+  // CALCULATE SGPA
+  // ======================
+
+  const calculateSGPA =
+    (roll) => {
+
+      const studentMarks =
+        marksData.filter(
+
+          (mark) =>
+            mark.roll === roll
+        )
+
+      let totalCredits = 0
+
+      let weightedPoints = 0
+
+      studentMarks.forEach((mark) => {
+
+        const subject =
+          subjects.find(
+
+            (sub) =>
+
+              sub.name ===
+              mark.subject ||
+
+              sub.subject ===
+              mark.subject
+          )
+
+        if (subject) {
+
+          const credits =
+            Number(
+              subject.credits
+            )
+
+          const gradePoint =
+            getGradePoint(
+              mark.grade
+            )
+
+          totalCredits +=
+            credits
+
+          weightedPoints +=
+
+            credits *
+            gradePoint
+        }
+      })
+
+      if (totalCredits === 0) {
+
+        return 0
+      }
+
+      return (
+
+        weightedPoints /
+        totalCredits
+
+      ).toFixed(2)
+    }
+
+  // ======================
+  // RANK STUDENTS
+  // ======================
+
   const rankedStudents =
+
     [...students]
+
       .map((student) => ({
+
         ...student,
+
         sgpa: Number(
-          calculateSGPA(student.roll)
+
+          calculateSGPA(
+            student.roll
+          )
         )
       }))
-      .sort((a, b) => b.sgpa - a.sgpa)
+
+      .sort(
+
+        (a, b) =>
+
+          b.sgpa - a.sgpa
+      )
+
+  // ======================
+  // LOADING
+  // ======================
+
+  if (loading) {
+
+    return (
+
+      <div className="min-h-screen flex items-center justify-center">
+
+        <h1 className="text-3xl font-bold text-indigo-600">
+          Loading Rank List...
+        </h1>
+
+      </div>
+    )
+  }
+
+  // ======================
+  // UI
+  // ======================
 
   return (
 
@@ -146,36 +267,48 @@ function RankList() {
 
           <tbody>
 
-            {rankedStudents.map((student, index) => (
+            {rankedStudents.map(
 
-              <tr
-                key={index}
-                className="border-t"
-              >
+              (student, index) => (
 
-                <td className="p-4 font-bold text-yellow-600">
-                  #{index + 1}
-                </td>
+                <tr
+                  key={student._id}
+                  className="border-t"
+                >
 
-                <td className="p-4">
-                  {student.name}
-                </td>
+                  <td className="p-4 font-bold text-yellow-600">
 
-                <td className="p-4">
-                  {student.roll}
-                </td>
+                    #{index + 1}
 
-                <td className="p-4">
-                  {student.course}
-                </td>
+                  </td>
 
-                <td className="p-4 font-bold text-indigo-600">
-                  {student.sgpa}
-                </td>
+                  <td className="p-4">
 
-              </tr>
+                    {student.name}
 
-            ))}
+                  </td>
+
+                  <td className="p-4">
+
+                    {student.roll}
+
+                  </td>
+
+                  <td className="p-4">
+
+                    {student.course}
+
+                  </td>
+
+                  <td className="p-4 font-bold text-indigo-600">
+
+                    {student.sgpa}
+
+                  </td>
+
+                </tr>
+              )
+            )}
 
           </tbody>
 

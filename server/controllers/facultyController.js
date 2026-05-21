@@ -7,7 +7,10 @@ from 'bcryptjs'
 import jwt
 from 'jsonwebtoken'
 
+// ======================
 // REGISTER FACULTY
+// ======================
+
 export const registerFaculty =
   async (req, res) => {
 
@@ -18,40 +21,78 @@ export const registerFaculty =
         name,
         email,
         password,
-        subject
+        subject,
+        role
 
       } = req.body
 
-      // CHECK EXISTS
+      // ======================
+      // VALIDATION
+      // ======================
+
+      if (
+
+        !name ||
+        !email ||
+        !password ||
+        !subject
+
+      ) {
+
+        return res.status(400).json({
+
+          success: false,
+
+          message:
+            'Please fill all fields'
+        })
+      }
+
+      // ======================
+      // CHECK EXISTING
+      // ======================
+
       const exists =
         await Faculty.findOne({
 
-          email
+          email:
+            email.toLowerCase()
         })
 
       if (exists) {
 
         return res.status(400).json({
 
+          success: false,
+
           message:
             'Faculty already exists'
         })
       }
 
+      // ======================
       // HASH PASSWORD
+      // ======================
+
       const hashedPassword =
         await bcrypt.hash(
 
           password,
+
           10
         )
 
+      // ======================
       // CREATE FACULTY
+      // ======================
+
       const faculty =
         await Faculty.create({
 
           name,
-          email,
+
+          email:
+            email.toLowerCase(),
 
           password:
             hashedPassword,
@@ -59,10 +100,16 @@ export const registerFaculty =
           subject,
 
           role:
-            'faculty'
+            role || 'faculty'
         })
 
+      // ======================
+      // RESPONSE
+      // ======================
+
       res.status(201).json({
+
+        success: true,
 
         message:
           'Faculty registered successfully',
@@ -88,7 +135,11 @@ export const registerFaculty =
 
     } catch (error) {
 
+      console.log(error)
+
       res.status(500).json({
+
+        success: false,
 
         message:
           error.message
@@ -96,7 +147,10 @@ export const registerFaculty =
     }
   }
 
+// ======================
 // LOGIN FACULTY
+// ======================
+
 export const loginFaculty =
   async (req, res) => {
 
@@ -109,27 +163,58 @@ export const loginFaculty =
 
       } = req.body
 
+      // ======================
+      // VALIDATION
+      // ======================
+
+      if (
+
+        !email ||
+        !password
+
+      ) {
+
+        return res.status(400).json({
+
+          success: false,
+
+          message:
+            'Email and password required'
+        })
+      }
+
+      // ======================
       // FIND FACULTY
+      // ======================
+
       const faculty =
         await Faculty.findOne({
 
-          email
-        })
+          email:
+            email.toLowerCase()
+
+        }).select('+password')
 
       if (!faculty) {
 
         return res.status(400).json({
+
+          success: false,
 
           message:
             'Invalid credentials'
         })
       }
 
-      // CHECK PASSWORD
+      // ======================
+      // PASSWORD CHECK
+      // ======================
+
       const isMatch =
         await bcrypt.compare(
 
           password,
+
           faculty.password
         )
 
@@ -137,12 +222,17 @@ export const loginFaculty =
 
         return res.status(400).json({
 
+          success: false,
+
           message:
             'Invalid credentials'
         })
       }
 
+      // ======================
       // JWT TOKEN
+      // ======================
+
       const token =
         jwt.sign(
 
@@ -155,7 +245,7 @@ export const loginFaculty =
               faculty.role
           },
 
-          'secret123',
+          process.env.JWT_SECRET,
 
           {
 
@@ -164,8 +254,13 @@ export const loginFaculty =
           }
         )
 
+      // ======================
       // RESPONSE
+      // ======================
+
       res.json({
+
+        success: true,
 
         token,
 
@@ -190,7 +285,11 @@ export const loginFaculty =
 
     } catch (error) {
 
+      console.log(error)
+
       res.status(500).json({
+
+        success: false,
 
         message:
           error.message
