@@ -1,49 +1,80 @@
 import jwt from 'jsonwebtoken'
 
-const protect = (req, res, next) => {
+// ======================
+// PROTECT ROUTES
+// ======================
+const protect = (
+  req,
+  res,
+  next
+) => {
 
   try {
 
     let token = null
 
-    // CHECK TOKEN
+    // ======================
+    // CHECK AUTH HEADER
+    // ======================
     if (
+
       req.headers.authorization &&
-      req.headers.authorization.startsWith('Bearer')
+
+      req.headers.authorization.startsWith(
+        'Bearer'
+      )
+
     ) {
 
       token =
-        req.headers.authorization.split(' ')[1]
+        req.headers.authorization.split(
+          ' '
+        )[1]
     }
 
-    // NO TOKEN
+    // ======================
+    // TOKEN NOT FOUND
+    // ======================
     if (!token) {
 
       return res.status(401).json({
 
-        message: 'Not authorized'
+        success: false,
+
+        message:
+          'Not authorized, token missing'
       })
     }
 
+    // ======================
     // VERIFY TOKEN
-    const decoded = jwt.verify(
+    // ======================
+    const decoded =
+      jwt.verify(
 
-      token,
+        token,
 
-      process.env.JWT_SECRET
-    )
+        process.env.JWT_SECRET
+      )
 
+    // SAVE USER
     req.user = decoded
 
     next()
 
   } catch (error) {
 
-    console.log(error)
+    console.log(
+      'AUTH ERROR:',
+      error.message
+    )
 
-    res.status(401).json({
+    return res.status(401).json({
 
-      message: 'Token failed'
+      success: false,
+
+      message:
+        'Invalid or expired token'
     })
   }
 }
@@ -51,46 +82,90 @@ const protect = (req, res, next) => {
 // ======================
 // ADMIN ONLY
 // ======================
-const adminOnly =
-  (req, res, next) => {
+const adminOnly = (
+  req,
+  res,
+  next
+) => {
+
+  try {
 
     if (
+
+      !req.user ||
+
       req.user.role !== 'admin'
+
     ) {
 
       return res.status(403).json({
 
+        success: false,
+
         message:
-          'Admin only access'
+          'Admin access only'
       })
     }
 
     next()
+
+  } catch (error) {
+
+    return res.status(500).json({
+
+      success: false,
+
+      message:
+        'Authorization failed'
+    })
   }
+}
 
 // ======================
 // FACULTY / ADMIN
 // ======================
-const facultyOnly =
-  (req, res, next) => {
+const facultyOnly = (
+  req,
+  res,
+  next
+) => {
+
+  try {
 
     if (
 
-      req.user.role !== 'faculty' &&
+      !req.user ||
 
-      req.user.role !== 'admin'
+      (
+        req.user.role !== 'faculty' &&
+
+        req.user.role !== 'admin'
+      )
 
     ) {
 
       return res.status(403).json({
 
+        success: false,
+
         message:
-          'Faculty/Admin only access'
+          'Faculty/Admin access only'
       })
     }
 
     next()
+
+  } catch (error) {
+
+    return res.status(500).json({
+
+      success: false,
+
+      message:
+        'Authorization failed'
+    })
   }
+}
 
 export {
 
