@@ -4,25 +4,35 @@ import dotenv from 'dotenv'
 
 import connectDB from './config/db.js'
 
+// ROUTES
+import authRoutes from './routes/authRoutes.js'
+import facultyRoutes from './routes/facultyRoutes.js'
+import studentAuthRoutes from './routes/studentAuthRoutes.js'
+
 import studentRoutes from './routes/studentRoutes.js'
+import subjectRoutes from './routes/subjectRoutes.js'
 import marksRoutes from './routes/marksRoutes.js'
 import resultRoutes from './routes/resultRoutes.js'
-import subjectRoutes from './routes/subjectRoutes.js'
+
 import publishRoutes from './routes/publishRoutes.js'
 import emailRoutes from './routes/emailRoutes.js'
-import facultyRoutes from './routes/facultyRoutes.js'
-import authRoutes from './routes/authRoutes.js'
 
 dotenv.config()
 
+// ======================
 // CONNECT DATABASE
+// ======================
+
 connectDB()
 
-const app = express()
+const app =
+  express()
 
 // ======================
-// CORS
+// MIDDLEWARE
 // ======================
+
+// CORS
 app.use(
 
   cors({
@@ -33,20 +43,40 @@ app.use(
   })
 )
 
-// ======================
 // BODY PARSER
-// ======================
-app.use(express.json())
+app.use(
+  express.json()
+)
 
 // ======================
 // ROUTES
 // ======================
 
-// AUTH
+// ======================
+// AUTH ROUTES
+// ======================
+
+// ADMIN AUTH
 app.use(
   '/api/auth',
   authRoutes
 )
+
+// FACULTY AUTH
+app.use(
+  '/api/faculty',
+  facultyRoutes
+)
+
+// STUDENT AUTH
+app.use(
+  '/api/student-auth',
+  studentAuthRoutes
+)
+
+// ======================
+// MAIN MODULES
+// ======================
 
 // STUDENTS
 app.use(
@@ -72,7 +102,7 @@ app.use(
   resultRoutes
 )
 
-// PUBLISH RESULTS
+// PUBLISH
 app.use(
   '/api/publish',
   publishRoutes
@@ -84,23 +114,34 @@ app.use(
   emailRoutes
 )
 
-// FACULTY
-app.use(
-  '/api/faculty',
-  facultyRoutes
-)
+// ======================
+// HOME ROUTE
+// ======================
 
-// ======================
-// TEST ROUTE
-// ======================
 app.get('/', (req, res) => {
 
-  res.send('API Running...')
+  res.send(
+    'Result Management API Running...'
+  )
 })
 
 // ======================
-// ERROR HANDLER
+// 404 HANDLER
 // ======================
+
+app.use((req, res) => {
+
+  res.status(404).json({
+
+    message:
+      'API Route Not Found'
+  })
+})
+
+// ======================
+// GLOBAL ERROR HANDLER
+// ======================
+
 app.use((err, req, res, next) => {
 
   console.log(err.stack)
@@ -108,20 +149,24 @@ app.use((err, req, res, next) => {
   res.status(500).json({
 
     message:
+
       err.message ||
-      'Server Error'
+
+      'Internal Server Error'
   })
 })
 
 // ======================
 // PORT
 // ======================
+
 const PORT =
   process.env.PORT || 5000
 
 // ======================
 // START SERVER
 // ======================
+
 app.listen(PORT, () => {
 
   console.log(

@@ -4,7 +4,8 @@ import {
   Navigate
 } from 'react-router-dom'
 
-import Navbar from './components/Navbar'
+import Navbar
+from './components/Navbar'
 
 import ProtectedRoute
 from './components/ProtectedRoute'
@@ -12,7 +13,10 @@ from './components/ProtectedRoute'
 import RoleProtectedRoute
 from './components/RoleProtectedRoute'
 
-// ADMIN
+// =========================
+// ADMIN PAGES
+// =========================
+
 import Login
 from './pages/Login'
 
@@ -43,14 +47,23 @@ from './pages/Upload'
 import PublishResults
 from './pages/PublishResults'
 
-// STUDENT
+import Transcript
+from './pages/Transcript'
+
+// =========================
+// STUDENT PAGES
+// =========================
+
 import StudentLogin
 from './pages/StudentLogin'
 
 import StudentDashboard
 from './pages/StudentDashboard'
 
-// FACULTY
+// =========================
+// FACULTY PAGES
+// =========================
+
 import FacultyLogin
 from './pages/FacultyLogin'
 
@@ -66,6 +79,17 @@ function App() {
       <Routes>
 
         {/* ========================= */}
+        {/* DEFAULT */}
+        {/* ========================= */}
+
+        <Route
+          path="/"
+          element={
+            <Navigate to="/login" />
+          }
+        />
+
+        {/* ========================= */}
         {/* ADMIN LOGIN */}
         {/* ========================= */}
 
@@ -75,33 +99,44 @@ function App() {
         />
 
         {/* ========================= */}
-        {/* STUDENT */}
+        {/* STUDENT LOGIN */}
         {/* ========================= */}
 
         <Route
           path="/student-login"
-          element={
-            <StudentLogin />
-          }
+          element={<StudentLogin />}
         />
+
+        {/* ========================= */}
+        {/* STUDENT DASHBOARD */}
+        {/* ========================= */}
 
         <Route
           path="/student-dashboard"
           element={
-            <StudentDashboard />
+            <ProtectedRoute>
+
+              <>
+                <Navbar />
+                <StudentDashboard />
+              </>
+
+            </ProtectedRoute>
           }
         />
 
         {/* ========================= */}
-        {/* FACULTY */}
+        {/* FACULTY LOGIN */}
         {/* ========================= */}
 
         <Route
           path="/faculty-login"
-          element={
-            <FacultyLogin />
-          }
+          element={<FacultyLogin />}
         />
+
+        {/* ========================= */}
+        {/* FACULTY DASHBOARD */}
+        {/* ========================= */}
 
         <Route
 
@@ -113,7 +148,10 @@ function App() {
               role="faculty"
             >
 
-              <FacultyDashboard />
+              <>
+                <Navbar />
+                <FacultyDashboard />
+              </>
 
             </RoleProtectedRoute>
           }
@@ -246,6 +284,24 @@ function App() {
         />
 
         {/* ========================= */}
+        {/* TRANSCRIPT */}
+        {/* ========================= */}
+
+        <Route
+          path="/transcript"
+          element={
+            <ProtectedRoute>
+
+              <>
+                <Navbar />
+                <Transcript />
+              </>
+
+            </ProtectedRoute>
+          }
+        />
+
+        {/* ========================= */}
         {/* UPLOAD */}
         {/* ========================= */}
 
@@ -278,17 +334,6 @@ function App() {
               </>
 
             </ProtectedRoute>
-          }
-        />
-
-        {/* ========================= */}
-        {/* DEFAULT */}
-        {/* ========================= */}
-
-        <Route
-          path="/"
-          element={
-            <Navigate to="/login" />
           }
         />
 

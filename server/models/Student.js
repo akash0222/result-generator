@@ -1,7 +1,7 @@
 import mongoose from 'mongoose'
 
 const studentSchema =
-  mongoose.Schema({
+  new mongoose.Schema({
 
     name: {
       type: String,
@@ -14,7 +14,7 @@ const studentSchema =
       unique: true
     },
 
-    course: {
+    password: {
       type: String,
       required: true
     },
@@ -22,9 +22,16 @@ const studentSchema =
     email: {
       type: String,
       required: true
-    }
+    },
+
+    phone: String,
+
+    course: String,
+
+    semester: Number
 
   }, {
+
     timestamps: true
   })
 
