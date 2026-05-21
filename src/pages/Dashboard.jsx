@@ -4,6 +4,10 @@ import API_URL from '../config'
 
 function Dashboard() {
 
+  // =========================
+  // STATES
+  // =========================
+
   const [students, setStudents] =
     useState([])
 
@@ -13,198 +17,335 @@ function Dashboard() {
   const [marks, setMarks] =
     useState([])
 
-  // =========================
-  // LOAD DATA
-  // =========================
-  useEffect(() => {
+  const [loading, setLoading] =
+    useState(true)
 
-    fetchStudents()
-    fetchSubjects()
-    fetchMarks()
-
-  }, [])
+  const [selectedSemester,
+    setSelectedSemester] =
+      useState('All')
 
   // =========================
   // TOKEN
   // =========================
+
   const token =
     localStorage.getItem('token')
 
   // =========================
+  // LOAD DATA
+  // =========================
+
+  useEffect(() => {
+
+    fetchAllData()
+
+  }, [])
+
+  // =========================
+  // FETCH ALL DATA
+  // =========================
+
+  const fetchAllData =
+    async () => {
+
+      try {
+
+        setLoading(true)
+
+        await Promise.all([
+
+          fetchStudents(),
+
+          fetchSubjects(),
+
+          fetchMarks()
+
+        ])
+
+      } catch (error) {
+
+        console.log(error)
+
+      } finally {
+
+        setLoading(false)
+      }
+    }
+
+  // =========================
   // FETCH STUDENTS
   // =========================
-  const fetchStudents = async () => {
 
-    try {
+  const fetchStudents =
+    async () => {
 
-      const res =
-        await axios.get(
+      try {
 
-          `${API_URL}/api/students`,
+        const res =
+          await axios.get(
 
-          {
-            headers: {
-              Authorization:
-                `Bearer ${token}`
+            `${API_URL}/api/students`,
+
+            {
+              headers: {
+                Authorization:
+                  `Bearer ${token}`
+              }
             }
-          }
+          )
+
+        setStudents(res.data)
+
+      } catch (error) {
+
+        console.log(
+          'Students Error:',
+          error.response?.data ||
+          error.message
         )
-
-      setStudents(res.data)
-
-    } catch (error) {
-
-      console.log(
-        'Students Error:',
-        error.response?.data ||
-        error.message
-      )
+      }
     }
-  }
 
   // =========================
   // FETCH SUBJECTS
   // =========================
-  const fetchSubjects = async () => {
 
-    try {
+  const fetchSubjects =
+    async () => {
 
-      const res =
-        await axios.get(
+      try {
 
-          `${API_URL}/api/subjects`,
+        const res =
+          await axios.get(
 
-          {
-            headers: {
-              Authorization:
-                `Bearer ${token}`
+            `${API_URL}/api/subjects`,
+
+            {
+              headers: {
+                Authorization:
+                  `Bearer ${token}`
+              }
             }
-          }
+          )
+
+        setSubjects(res.data)
+
+      } catch (error) {
+
+        console.log(
+          'Subjects Error:',
+          error.response?.data ||
+          error.message
         )
-
-      setSubjects(res.data)
-
-    } catch (error) {
-
-      console.log(
-        'Subjects Error:',
-        error.response?.data ||
-        error.message
-      )
+      }
     }
-  }
 
   // =========================
   // FETCH MARKS
   // =========================
-  const fetchMarks = async () => {
 
-    try {
+  const fetchMarks =
+    async () => {
 
-      const res =
-        await axios.get(
+      try {
 
-          `${API_URL}/api/marks`,
+        const res =
+          await axios.get(
 
-          {
-            headers: {
-              Authorization:
-                `Bearer ${token}`
+            `${API_URL}/api/marks`,
+
+            {
+              headers: {
+                Authorization:
+                  `Bearer ${token}`
+              }
             }
-          }
+          )
+
+        setMarks(res.data)
+
+      } catch (error) {
+
+        console.log(
+          'Marks Error:',
+          error.response?.data ||
+          error.message
         )
-
-      setMarks(res.data)
-
-    } catch (error) {
-
-      console.log(
-        'Marks Error:',
-        error.response?.data ||
-        error.message
-      )
+      }
     }
-  }
+
+  // =========================
+  // FILTER MARKS
+  // =========================
+
+  const filteredMarks =
+    selectedSemester === 'All'
+
+      ? marks
+
+      : marks.filter(
+          (m) =>
+            String(m.semester) ===
+            selectedSemester
+        )
 
   // =========================
   // GPA CALCULATION
   // =========================
-  const calculateAverageSGPA = () => {
 
-    if (marks.length === 0) {
+  const calculateAverageSGPA =
+    () => {
 
-      return 0
-    }
-
-    let total = 0
-
-    marks.forEach((mark) => {
-
-      switch (mark.grade) {
-
-        case 'A+':
-          total += 10
-          break
-
-        case 'A':
-          total += 9
-          break
-
-        case 'B+':
-          total += 8
-          break
-
-        case 'B':
-          total += 7
-          break
-
-        case 'C':
-          total += 6
-          break
-
-        default:
-          total += 0
+      if (
+        filteredMarks.length === 0
+      ) {
+        return 0
       }
-    })
 
-    return (
-      total / marks.length
-    ).toFixed(2)
-  }
+      let total = 0
+
+      filteredMarks.forEach(
+        (mark) => {
+
+          switch (mark.grade) {
+
+            case 'A+':
+              total += 10
+              break
+
+            case 'A':
+              total += 9
+              break
+
+            case 'B+':
+              total += 8
+              break
+
+            case 'B':
+              total += 7
+              break
+
+            case 'C':
+              total += 6
+              break
+
+            default:
+              total += 0
+          }
+        }
+      )
+
+      return (
+        total /
+        filteredMarks.length
+      ).toFixed(2)
+    }
 
   // =========================
   // FAILED STUDENTS
   // =========================
+
   const failedStudents =
-    marks.filter(
+    filteredMarks.filter(
       (m) => m.grade === 'F'
     ).length
 
   // =========================
   // PASS PERCENTAGE
   // =========================
+
   const passPercentage =
-    marks.length > 0
+    filteredMarks.length > 0
 
       ? (
           (
             (
-              marks.length -
+              filteredMarks.length -
               failedStudents
-            ) / marks.length
+            ) /
+            filteredMarks.length
           ) * 100
         ).toFixed(2)
 
       : 0
+
+  // =========================
+  // TOPPER
+  // =========================
+
+  const topper =
+    students.length > 0
+
+      ? students[0]
+
+      : null
+
+  // =========================
+  // LOADING UI
+  // =========================
+
+  if (loading) {
+
+    return (
+
+      <div className="min-h-screen flex items-center justify-center bg-gray-100">
+
+        <div className="text-3xl font-bold text-blue-600">
+          Loading Dashboard...
+        </div>
+
+      </div>
+    )
+  }
 
   return (
 
     <div className="min-h-screen bg-gray-100 p-6">
 
       {/* HEADER */}
-      <h1 className="text-5xl font-bold text-blue-600 mb-8">
-        Dashboard
-      </h1>
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-8">
+
+        <h1 className="text-5xl font-bold text-blue-600">
+          Dashboard
+        </h1>
+
+        {/* SEMESTER FILTER */}
+        <select
+
+          value={selectedSemester}
+
+          onChange={(e) =>
+            setSelectedSemester(
+              e.target.value
+            )
+          }
+
+          className="mt-4 md:mt-0 border p-3 rounded-xl"
+        >
+
+          <option value="All">
+            All Semesters
+          </option>
+
+          <option value="1">
+            Semester 1
+          </option>
+
+          <option value="2">
+            Semester 2
+          </option>
+
+          <option value="3">
+            Semester 3
+          </option>
+
+          <option value="4">
+            Semester 4
+          </option>
+
+        </select>
+
+      </div>
 
       {/* TOP CARDS */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
@@ -243,7 +384,7 @@ function Dashboard() {
           </h2>
 
           <p className="text-5xl font-bold text-purple-600 mt-3">
-            {marks.length}
+            {filteredMarks.length}
           </p>
 
         </div>
@@ -264,7 +405,7 @@ function Dashboard() {
       </div>
 
       {/* SECOND ROW */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8">
 
         {/* FAILED */}
         <div className="bg-white p-6 rounded-2xl shadow">
@@ -289,6 +430,57 @@ function Dashboard() {
           <p className="text-5xl font-bold text-green-600 mt-3">
             {passPercentage}%
           </p>
+
+        </div>
+
+        {/* TOPPER */}
+        <div className="bg-white p-6 rounded-2xl shadow">
+
+          <h2 className="text-gray-500 text-lg">
+            Topper
+          </h2>
+
+          <p className="text-2xl font-bold text-yellow-600 mt-3">
+
+            {topper
+              ? topper.name
+              : 'N/A'}
+
+          </p>
+
+        </div>
+
+      </div>
+
+      {/* RECENT ACTIVITY */}
+      <div className="bg-white p-6 rounded-2xl shadow mt-8">
+
+        <h2 className="text-2xl font-bold text-gray-700 mb-4">
+          Recent Activity
+        </h2>
+
+        <div className="space-y-3">
+
+          <div className="border p-4 rounded-xl">
+            Students Added:
+            <span className="font-bold text-blue-600 ml-2">
+              {students.length}
+            </span>
+          </div>
+
+          <div className="border p-4 rounded-xl">
+            Subjects Created:
+            <span className="font-bold text-green-600 ml-2">
+              {subjects.length}
+            </span>
+          </div>
+
+          <div className="border p-4 rounded-xl">
+            Marks Uploaded:
+            <span className="font-bold text-purple-600 ml-2">
+              {marks.length}
+            </span>
+          </div>
 
         </div>
 
