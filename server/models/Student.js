@@ -21,14 +21,24 @@ const studentSchema =
 
     email: {
       type: String,
+      required: true,
+      unique: true
+    },
+
+    phone: {
+      type: String,
+      default: ''
+    },
+
+    course: {
+      type: String,
       required: true
     },
 
-    phone: String,
-
-    course: String,
-
-    semester: Number
+    semester: {
+      type: Number,
+      required: true
+    }
 
   }, {
 

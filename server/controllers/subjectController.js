@@ -1,5 +1,4 @@
-import Subject
-from '../models/Subject.js'
+import Subject from '../models/Subject.js'
 
 // GET SUBJECTS
 export const getSubjects =
@@ -37,8 +36,23 @@ export const addSubject =
 
       } = req.body
 
+      // CHECK EXISTING
+      const exists =
+        await Subject.findOne({
+          code
+        })
+
+      if (exists) {
+
+        return res.status(400).json({
+
+          message:
+            'Subject already exists'
+        })
+      }
+
       const subject =
-        new Subject({
+        await Subject.create({
 
           name,
           code,
@@ -46,16 +60,11 @@ export const addSubject =
           semester
         })
 
-      const savedSubject =
-        await subject.save()
-
       res.status(201).json(
-        savedSubject
+        subject
       )
 
     } catch (error) {
-
-      console.log(error)
 
       res.status(500).json({
 
@@ -71,9 +80,21 @@ export const deleteSubject =
 
     try {
 
-      await Subject.findByIdAndDelete(
-        req.params.id
-      )
+      const subject =
+        await Subject.findById(
+          req.params.id
+        )
+
+      if (!subject) {
+
+        return res.status(404).json({
+
+          message:
+            'Subject not found'
+        })
+      }
+
+      await subject.deleteOne()
 
       res.json({
 

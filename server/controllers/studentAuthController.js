@@ -1,19 +1,19 @@
 import Student from '../models/Student.js'
+
 import bcrypt from 'bcryptjs'
+
 import jwt from 'jsonwebtoken'
 
-// ======================
-// STUDENT LOGIN
-// ======================
-
-const studentLogin =
+export const studentLogin =
   async (req, res) => {
 
     try {
 
       const {
+
         roll,
         password
+
       } = req.body
 
       // FIND STUDENT
@@ -24,79 +24,61 @@ const studentLogin =
 
       if (!student) {
 
-        return res.status(401).json({
+        return res.status(404).json({
+
           message:
-            'Invalid roll number'
+            'Invalid Roll Number'
         })
       }
 
-      // CHECK PASSWORD
+      // PASSWORD CHECK
       const isMatch =
         await bcrypt.compare(
+
           password,
+
           student.password
         )
 
       if (!isMatch) {
 
-        return res.status(401).json({
+        return res.status(400).json({
+
           message:
-            'Invalid password'
+            'Invalid Password'
         })
       }
 
-      // CREATE TOKEN
+      // TOKEN
       const token =
         jwt.sign(
 
           {
-            id: student._id,
-            role: 'student'
+            id:
+              student._id
           },
 
           process.env.JWT_SECRET,
 
           {
-            expiresIn: '7d'
+            expiresIn:
+              '7d'
           }
         )
 
-      // RESPONSE
       res.json({
 
         token,
 
-        student: {
-
-          _id:
-            student._id,
-
-          name:
-            student.name,
-
-          roll:
-            student.roll,
-
-          email:
-            student.email,
-
-          course:
-            student.course,
-
-          semester:
-            student.semester
-        }
+        student
       })
 
     } catch (error) {
 
       res.status(500).json({
+
         message:
           error.message
       })
     }
   }
-
-export {
-  studentLogin
-}

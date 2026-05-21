@@ -11,7 +11,7 @@ import {
 
 } from '../utils/relativeGrading.js'
 
-// GET ALL MARKS
+// GET MARKS
 export const getMarks =
   async (req, res) => {
 
@@ -49,7 +49,23 @@ export const addMarks =
 
       } = req.body
 
-      // TOTAL
+      // CHECK EXISTING
+      const exists =
+        await Mark.findOne({
+
+          roll,
+          subject
+        })
+
+      if (exists) {
+
+        return res.status(400).json({
+
+          message:
+            'Marks already added'
+        })
+      }
+
       const total =
 
         Number(internal) +
@@ -58,9 +74,7 @@ export const addMarks =
 
       let grade = ''
 
-      // =========================
-      // ABSOLUTE GRADING
-      // =========================
+      // ABSOLUTE
       if (
         gradingMode ===
         'absolute'
@@ -72,53 +86,44 @@ export const addMarks =
           )
       }
 
-      // =========================
-      // RELATIVE GRADING
-      // SUBJECT-WISE
-      // =========================
+      // RELATIVE
       else {
 
-        // SAME SUBJECT MARKS
         const subjectMarks =
           await Mark.find({
-
             subject
           })
 
-        // GET TOTALS
         const totals =
           subjectMarks.map(
             (m) => m.total
           )
 
-        // ADD CURRENT TOTAL
         totals.push(total)
 
-        // MEAN
         const mean =
           calculateMean(
             totals
           )
 
-        // STANDARD DEVIATION
         const sd =
           calculateSD(
             totals,
             mean
           )
 
-        // RELATIVE GRADE
         grade =
           getRelativeGrade(
+
             total,
             mean,
             sd
           )
       }
 
-      // CREATE MARK ENTRY
+      // SAVE
       const mark =
-        new Mark({
+        await Mark.create({
 
           roll,
           subject,
@@ -130,12 +135,8 @@ export const addMarks =
           gradingMode
         })
 
-      // SAVE
-      const savedMark =
-        await mark.save()
-
       res.status(201).json(
-        savedMark
+        mark
       )
 
     } catch (error) {

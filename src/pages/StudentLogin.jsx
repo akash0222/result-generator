@@ -52,6 +52,13 @@ function StudentLogin() {
           )
         )
 
+        localStorage.setItem(
+
+          'studentRoll',
+
+          res.data.student.roll
+        )
+
         navigate(
           '/student-dashboard'
         )
