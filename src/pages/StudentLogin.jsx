@@ -7,7 +7,10 @@ from 'react-router-dom'
 
 import API_URL from '../config'
 
-function StudentLogin() {
+function Login() {
+
+  const [role, setRole] =
+    useState('student')
 
   const [roll, setRoll] =
     useState('')
@@ -25,43 +28,79 @@ function StudentLogin() {
 
       try {
 
-        const res =
-          await axios.post(
+        // ======================
+        // STUDENT LOGIN
+        // ======================
 
-            `${API_URL}/api/student-auth/login`,
+        if (role === 'student') {
 
-            {
-              roll,
-              password
-            }
+          const res =
+            await axios.post(
+
+              `${API_URL}/api/student-auth/login`,
+
+              {
+                roll,
+                password
+              }
+            )
+
+          localStorage.setItem(
+
+            'studentToken',
+
+            res.data.token
           )
 
-        localStorage.setItem(
+          localStorage.setItem(
 
-          'studentToken',
+            'student',
 
-          res.data.token
-        )
-
-        localStorage.setItem(
-
-          'student',
-
-          JSON.stringify(
-            res.data.student
+            JSON.stringify(
+              res.data.student
+            )
           )
-        )
 
-        localStorage.setItem(
+          localStorage.setItem(
 
-          'studentRoll',
+            'studentRoll',
 
-          res.data.student.roll
-        )
+            res.data.student.roll
+          )
 
-        navigate(
-          '/student-dashboard'
-        )
+          navigate(
+            '/student-dashboard'
+          )
+        }
+
+        // ======================
+        // FACULTY LOGIN
+        // ======================
+
+        else {
+
+          const res =
+            await axios.post(
+
+              `${API_URL}/api/faculty/login`,
+
+              {
+                email: roll,
+                password
+              }
+            )
+
+          localStorage.setItem(
+
+            'facultyToken',
+
+            res.data.token
+          )
+
+          navigate(
+            '/dashboard'
+          )
+        }
 
       } catch (error) {
 
@@ -76,7 +115,7 @@ function StudentLogin() {
 
   return (
 
-    <div className="min-h-screen flex items-center justify-center bg-gray-100">
+    <div className="min-h-screen bg-gray-100 flex items-center justify-center">
 
       <form
 
@@ -85,15 +124,44 @@ function StudentLogin() {
         className="bg-white p-8 rounded-xl shadow w-full max-w-md"
       >
 
-        <h1 className="text-3xl font-bold text-indigo-600 mb-6 text-center">
-          Student Login
+        <h1 className="text-4xl font-bold text-blue-900 text-center mb-6">
+          ERP Login
         </h1>
+
+        {/* ROLE */}
+
+        <select
+
+          value={role}
+
+          onChange={(e) =>
+            setRole(e.target.value)
+          }
+
+          className="w-full border p-3 rounded-lg mb-4"
+        >
+
+          <option value="student">
+            Student Login
+          </option>
+
+          <option value="faculty">
+            Faculty Login
+          </option>
+
+        </select>
+
+        {/* ROLL / EMAIL */}
 
         <input
 
           type="text"
 
-          placeholder="Roll Number"
+          placeholder={
+            role === 'student'
+              ? 'Roll Number'
+              : 'Faculty Email'
+          }
 
           value={roll}
 
@@ -106,6 +174,8 @@ function StudentLogin() {
           required
         />
 
+        {/* PASSWORD */}
+
         <input
 
           type="password"
@@ -115,7 +185,9 @@ function StudentLogin() {
           value={password}
 
           onChange={(e) =>
-            setPassword(e.target.value)
+            setPassword(
+              e.target.value
+            )
           }
 
           className="w-full border p-3 rounded-lg mb-4"
@@ -123,9 +195,11 @@ function StudentLogin() {
           required
         />
 
+        {/* BUTTON */}
+
         <button
 
-          className="w-full bg-indigo-600 text-white py-3 rounded-lg"
+          className="w-full bg-blue-900 text-white py-3 rounded-lg"
         >
           Login
         </button>
@@ -136,4 +210,4 @@ function StudentLogin() {
   )
 }
 
-export default StudentLogin
+export default Login

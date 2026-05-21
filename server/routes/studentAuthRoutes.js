@@ -1,9 +1,7 @@
 import express from 'express'
 
 import {
-
   studentLogin
-
 } from '../controllers/studentAuthController.js'
 
 const router =
