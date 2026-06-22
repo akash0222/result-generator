@@ -4,422 +4,287 @@ import {
   Navigate
 } from 'react-router-dom'
 
-import Navbar
-from './components/Navbar'
-
-import ProtectedRoute
-from './components/ProtectedRoute'
-
-import RoleProtectedRoute
-from './components/RoleProtectedRoute'
+import Layout from './components/Layout'
+import ProtectedRoute from './components/ProtectedRoute'
+import RoleProtectedRoute from './components/RoleProtectedRoute'
 
 // =========================
 // ADMIN PAGES
 // =========================
 
-import Login
-from './pages/Login'
-
-import Dashboard
-from './pages/Dashboard'
-
-import Students
-from './pages/Students'
-
-import Subjects
-from './pages/Subjects'
-
-import Marks
-from './pages/Marks'
-
-import Results
-from './pages/Results'
-
-import RankList
-from './pages/RankList'
-
-import CGPA
-from './pages/CGPA'
-
-import Upload
-from './pages/Upload'
-
-import PublishResults
-from './pages/PublishResults'
-
-import Transcript
-from './pages/Transcript'
-
+import Login from './pages/Login'
+import Dashboard from './pages/Dashboard'
+import Students from './pages/Students'
+import Subjects from './pages/Subjects'
+import Marks from './pages/Marks'
+import Results from './pages/Results'
+import RankList from './pages/RankList'
+import CGPA from './pages/CGPA'
+import Upload from './pages/Upload'
+import PublishResults from './pages/PublishResults'
+import Transcript from './pages/Transcript'
 import Attendance from './pages/Attendance'
 import Fees from './pages/Fees'
 import Library from './pages/Library'
 import Transport from './pages/Transport'
 import General from './pages/General'
-import SchoolProfile
-from './pages/SchoolProfile'
+import SchoolProfile from './pages/SchoolProfile'
+import Classes from './pages/Classes'
 
 // =========================
 // STUDENT PAGES
 // =========================
 
-import StudentLogin
-from './pages/StudentLogin'
-
-import StudentDashboard
-from './pages/StudentDashboard'
+import StudentLogin from './pages/StudentLogin'
+import StudentDashboard from './pages/StudentDashboard'
 
 // =========================
 // FACULTY PAGES
 // =========================
 
-import FacultyLogin
-from './pages/FacultyLogin'
-
-import FacultyDashboard
-from './pages/FacultyDashboard'
+import FacultyLogin from './pages/FacultyLogin'
+import FacultyDashboard from './pages/FacultyDashboard'
 
 function App() {
-
   return (
-
-    <div>
-
-      <Routes>
-
-        {/* ========================= */}
-        {/* DEFAULT */}
-        {/* ========================= */}
-
-        <Route
-          path="/"
-          element={
-            <Navigate to="/login" />
-          }
-        />
-
-        {/* ========================= */}
-        {/* ADMIN LOGIN */}
-        {/* ========================= */}
-
-        <Route
-          path="/login"
-          element={<Login />}
-        />
-
-        {/* ========================= */}
-        {/* STUDENT LOGIN */}
-        {/* ========================= */}
-
-        <Route
-          path="/student-login"
-          element={<StudentLogin />}
-        />
-
-        {/* ========================= */}
-        {/* STUDENT DASHBOARD */}
-        {/* ========================= */}
-
-        <Route
-          path="/student-dashboard"
-          element={
-            <ProtectedRoute>
-
-              <>
-                <Navbar />
-                <StudentDashboard />
-              </>
-
-            </ProtectedRoute>
-          }
-        />
-
-        {/* ========================= */}
-        {/* FACULTY LOGIN */}
-        {/* ========================= */}
-
-        <Route
-          path="/faculty-login"
-          element={<FacultyLogin />}
-        />
-
-        {/* ========================= */}
-        {/* FACULTY DASHBOARD */}
-        {/* ========================= */}
-
-        <Route
-
-          path="/faculty-dashboard"
-
-          element={
-
-            <RoleProtectedRoute
-              role="faculty"
-            >
-
-              <>
-                <Navbar />
-                <FacultyDashboard />
-              </>
-
-            </RoleProtectedRoute>
-          }
-        />
-
-        {/* ========================= */}
-        {/* DASHBOARD */}
-        {/* ========================= */}
-
-        <Route
-          path="/dashboard"
-          element={
-            <ProtectedRoute>
-
-              <>
-                <Navbar />
-                <Dashboard />
-              </>
-
-            </ProtectedRoute>
-          }
-        />
-
-        {/* ========================= */}
-        {/* STUDENTS */}
-        {/* ========================= */}
-
-        <Route
-          path="/students"
-          element={
-            <ProtectedRoute>
-
-              <>
-                <Navbar />
-                <Students />
-              </>
-
-            </ProtectedRoute>
-          }
-        />
-
-        {/* ========================= */}
-        {/* SUBJECTS */}
-        {/* ========================= */}
-
-        <Route
-          path="/subjects"
-          element={
-            <ProtectedRoute>
-
-              <>
-                <Navbar />
-                <Subjects />
-              </>
-
-            </ProtectedRoute>
-          }
-        />
-
-        {/* ========================= */}
-        {/* MARKS */}
-        {/* ========================= */}
-
-        <Route
-          path="/marks"
-          element={
-            <ProtectedRoute>
-
-              <>
-                <Navbar />
-                <Marks />
-              </>
-
-            </ProtectedRoute>
-          }
-        />
-
-        {/* ========================= */}
-        {/* RESULTS */}
-        {/* ========================= */}
-
-        <Route
-          path="/results"
-          element={
-            <ProtectedRoute>
-
-              <>
-                <Navbar />
-                <Results />
-              </>
-
-            </ProtectedRoute>
-          }
-        />
-
-        {/* ========================= */}
-        {/* RANK LIST */}
-        {/* ========================= */}
-
-        <Route
-          path="/ranklist"
-          element={
-            <ProtectedRoute>
-
-              <>
-                <Navbar />
-                <RankList />
-              </>
-
-            </ProtectedRoute>
-          }
-        />
-
-        {/* ========================= */}
-        {/* CGPA */}
-        {/* ========================= */}
-
-        <Route
-          path="/cgpa"
-          element={
-            <ProtectedRoute>
-
-              <>
-                <Navbar />
-                <CGPA />
-              </>
-
-            </ProtectedRoute>
-          }
-        />
-
-        {/* ========================= */}
-        {/* TRANSCRIPT */}
-        {/* ========================= */}
-
-        <Route
-          path="/transcript"
-          element={
-            <ProtectedRoute>
-
-              <>
-                <Navbar />
-                <Transcript />
-              </>
-
-            </ProtectedRoute>
-          }
-        />
-
-        {/* ========================= */}
-        {/* UPLOAD */}
-        {/* ========================= */}
-
-        <Route
-          path="/upload"
-          element={
-            <ProtectedRoute>
-
-              <>
-                <Navbar />
-                <Upload />
-              </>
-
-            </ProtectedRoute>
-          }
-        />
-
-        {/* ========================= */}
-        {/* PUBLISH RESULTS */}
-        {/* ========================= */}
-
-        <Route
-          path="/publish-results"
-          element={
-            <ProtectedRoute>
-
-              <>
-                <Navbar />
-                <PublishResults />
-              </>
-
-            </ProtectedRoute>
-          }
-        />
-
-        <Route
-  path="/general"
-  element={
-    <ProtectedRoute>
-      <>
-        <Navbar />
-        <General />
-      </>
-    </ProtectedRoute>
-  }
-/>
-
-<Route
-  path="/attendance"
-  element={
-    <ProtectedRoute>
-      <>
-        <Navbar />
-        <Attendance />
-      </>
-    </ProtectedRoute>
-  }
-/>
-
-<Route
-  path="/fees"
-  element={
-    <ProtectedRoute>
-      <>
-        <Navbar />
-        <Fees />
-      </>
-    </ProtectedRoute>
-  }
-/>
-
-<Route
-  path="/library"
-  element={
-    <ProtectedRoute>
-      <>
-        <Navbar />
-        <Library />
-      </>
-    </ProtectedRoute>
-  }
-/>
-
-<Route
-  path="/transport"
-  element={
-    <ProtectedRoute>
-      <>
-        <Navbar />
-        <Transport />
-      </>
-    </ProtectedRoute>
-  }
-/>
-
-<Route
-  path="/school-profile"
-  element={
-    <ProtectedRoute>
-      <>
-        <Navbar />
-        <SchoolProfile />
-      </>
-    </ProtectedRoute>
-  }
-/>
-
-      </Routes>
-
-    </div>
+    <Routes>
+
+      {/* DEFAULT */}
+
+      <Route
+        path="/"
+        element={<Navigate to="/login" replace />}
+      />
+
+      {/* AUTH */}
+
+      <Route path="/login" element={<Login />} />
+      <Route path="/student-login" element={<StudentLogin />} />
+      <Route path="/faculty-login" element={<FacultyLogin />} />
+
+      {/* STUDENT */}
+
+      <Route
+        path="/student-dashboard"
+        element={
+          <ProtectedRoute>
+            <Layout>
+              <StudentDashboard />
+            </Layout>
+          </ProtectedRoute>
+        }
+      />
+
+      {/* FACULTY */}
+
+      <Route
+        path="/faculty-dashboard"
+        element={
+          <RoleProtectedRoute role="faculty">
+            <Layout>
+              <FacultyDashboard />
+            </Layout>
+          </RoleProtectedRoute>
+        }
+      />
+
+      {/* ADMIN */}
+
+      <Route
+        path="/dashboard"
+        element={
+          <ProtectedRoute>
+            <Layout>
+              <Dashboard />
+            </Layout>
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/students"
+        element={
+          <ProtectedRoute>
+            <Layout>
+              <Students />
+            </Layout>
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/subjects"
+        element={
+          <ProtectedRoute>
+            <Layout>
+              <Subjects />
+            </Layout>
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/marks"
+        element={
+          <ProtectedRoute>
+            <Layout>
+              <Marks />
+            </Layout>
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/results"
+        element={
+          <ProtectedRoute>
+            <Layout>
+              <Results />
+            </Layout>
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/ranklist"
+        element={
+          <ProtectedRoute>
+            <Layout>
+              <RankList />
+            </Layout>
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/cgpa"
+        element={
+          <ProtectedRoute>
+            <Layout>
+              <CGPA />
+            </Layout>
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/upload"
+        element={
+          <ProtectedRoute>
+            <Layout>
+              <Upload />
+            </Layout>
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/transcript"
+        element={
+          <ProtectedRoute>
+            <Layout>
+              <Transcript />
+            </Layout>
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/classes"
+        element={
+          <ProtectedRoute>
+          <Layout>
+          <Classes/>
+          </Layout>
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/publish-results"
+        element={
+          <ProtectedRoute>
+            <Layout>
+              <PublishResults />
+            </Layout>
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/attendance"
+        element={
+          <ProtectedRoute>
+            <Layout>
+              <Attendance />
+            </Layout>
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/fees"
+        element={
+          <ProtectedRoute>
+            <Layout>
+              <Fees />
+            </Layout>
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/library"
+        element={
+          <ProtectedRoute>
+            <Layout>
+              <Library />
+            </Layout>
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/transport"
+        element={
+          <ProtectedRoute>
+            <Layout>
+              <Transport />
+            </Layout>
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/general"
+        element={
+          <ProtectedRoute>
+            <Layout>
+              <General />
+            </Layout>
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/school-profile"
+        element={
+          <ProtectedRoute>
+            <Layout>
+              <SchoolProfile />
+            </Layout>
+          </ProtectedRoute>
+        }
+      />
+
+      {/* 404 */}
+
+      <Route
+        path="*"
+        element={<Navigate to="/dashboard" replace />}
+      />
+
+    </Routes>
   )
 }
 

@@ -5,7 +5,13 @@ const schoolProfileSchema = new mongoose.Schema({
   schoolName: String,
   schoolCode: String,
   affiliationNo: String,
-  registrationNo: String,
+
+  principalName: String,
+  vicePrincipal: String,
+
+  email: String,
+  phone: String,
+  website: String,
 
   address: String,
   city: String,
@@ -13,14 +19,7 @@ const schoolProfileSchema = new mongoose.Schema({
   country: String,
   pincode: String,
 
-  phone: String,
-  mobile: String,
-  email: String,
-  website: String,
-
-  principalName: String,
-  vicePrincipal: String,
-  administrator: String
+  logo: String,
 
 }, {
   timestamps: true

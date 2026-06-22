@@ -17,8 +17,8 @@ import resultRoutes from './routes/resultRoutes.js'
 import publishRoutes from './routes/publishRoutes.js'
 import emailRoutes from './routes/emailRoutes.js'
 
-import schoolProfileRoutes
-from './routes/schoolProfileRoutes.js'
+import schoolProfileRoutes from './routes/schoolProfileRoutes.js'
+import classRoutes from './routes/classRoutes.js'
 
 dotenv.config()
 
@@ -132,6 +132,11 @@ app.get('/', (req, res) => {
 app.use(
   '/api/school-profile',
   schoolProfileRoutes
+)
+
+app.use(
+  '/api/classes',
+  classRoutes
 )
 
 // ======================
