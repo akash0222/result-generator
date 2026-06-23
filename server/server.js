@@ -4,135 +4,90 @@ import dotenv from 'dotenv'
 
 import connectDB from './config/db.js'
 
+// ======================
 // ROUTES
+// ======================
+
 import authRoutes from './routes/authRoutes.js'
 import facultyRoutes from './routes/facultyRoutes.js'
 import studentAuthRoutes from './routes/studentAuthRoutes.js'
 
 import studentRoutes from './routes/studentRoutes.js'
-import subjectRoutes from './routes/subjectRoutes.js'
-import marksRoutes from './routes/marksRoutes.js'
-import resultRoutes from './routes/resultRoutes.js'
-
-import publishRoutes from './routes/publishRoutes.js'
-import emailRoutes from './routes/emailRoutes.js'
 
 import schoolProfileRoutes from './routes/schoolProfileRoutes.js'
 import classRoutes from './routes/classRoutes.js'
 
+// FUTURE MODULES (PHASE 2+)
+
+// import subjectRoutes from './routes/subjectRoutes.js'
+// import marksRoutes from './routes/marksRoutes.js'
+// import resultRoutes from './routes/resultRoutes.js'
+// import publishRoutes from './routes/publishRoutes.js'
+// import emailRoutes from './routes/emailRoutes.js'
+
 dotenv.config()
 
 // ======================
-// CONNECT DATABASE
+// DATABASE
 // ======================
 
 connectDB()
 
-const app =
-  express()
+const app = express()
 
 // ======================
 // MIDDLEWARE
 // ======================
 
-// CORS
 app.use(
-
   cors({
-
     origin: '*',
-
-    credentials: true
+    credentials: true,
   })
 )
 
-// BODY PARSER
-app.use(
-  express.json()
-)
+app.use(express.json())
 
 // ======================
-// ROUTES
+// HOME
 // ======================
 
+app.get('/', (req, res) => {
+  res.send('School ERP API Running...')
+})
+
 // ======================
-// AUTH ROUTES
+// AUTH
 // ======================
 
-// ADMIN AUTH
-app.use(
-  '/api/auth',
-  authRoutes
-)
+app.use('/api/auth', authRoutes)
 
-// FACULTY AUTH
-app.use(
-  '/api/faculty',
-  facultyRoutes
-)
+app.use('/api/faculty', facultyRoutes)
 
-// STUDENT AUTH
 app.use(
   '/api/student-auth',
   studentAuthRoutes
 )
 
 // ======================
-// MAIN MODULES
+// CORE SCHOOL ERP
 // ======================
 
 // STUDENTS
+
 app.use(
   '/api/students',
   studentRoutes
 )
 
-// SUBJECTS
-app.use(
-  '/api/subjects',
-  subjectRoutes
-)
-
-// MARKS
-app.use(
-  '/api/marks',
-  marksRoutes
-)
-
-// RESULTS
-app.use(
-  '/api/results',
-  resultRoutes
-)
-
-// PUBLISH
-app.use(
-  '/api/publish',
-  publishRoutes
-)
-
-// EMAIL
-app.use(
-  '/api/email',
-  emailRoutes
-)
-
-// ======================
-// HOME ROUTE
-// ======================
-
-app.get('/', (req, res) => {
-
-  res.send(
-    'Result Management API Running...'
-  )
-})
-
 // SCHOOL PROFILE
+
 app.use(
   '/api/school-profile',
   schoolProfileRoutes
 )
+
+// CLASSES
 
 app.use(
   '/api/classes',
@@ -140,51 +95,48 @@ app.use(
 )
 
 // ======================
-// 404 HANDLER
+// FUTURE MODULES
+// ======================
+
+// app.use('/api/subjects', subjectRoutes)
+// app.use('/api/marks', marksRoutes)
+// app.use('/api/results', resultRoutes)
+// app.use('/api/publish', publishRoutes)
+// app.use('/api/email', emailRoutes)
+
+// ======================
+// 404
 // ======================
 
 app.use((req, res) => {
-
   res.status(404).json({
-
-    message:
-      'API Route Not Found'
+    message: 'API Route Not Found',
   })
 })
 
 // ======================
-// GLOBAL ERROR HANDLER
+// ERROR HANDLER
 // ======================
 
 app.use((err, req, res, next) => {
-
   console.log(err.stack)
 
   res.status(500).json({
-
     message:
-
       err.message ||
-
-      'Internal Server Error'
+      'Internal Server Error',
   })
 })
 
 // ======================
-// PORT
+// SERVER
 // ======================
 
 const PORT =
   process.env.PORT || 5000
 
-// ======================
-// START SERVER
-// ======================
-
 app.listen(PORT, () => {
-
   console.log(
-
-    `Server running on port ${PORT}`
+    `School ERP Server running on port ${PORT}`
   )
 })
