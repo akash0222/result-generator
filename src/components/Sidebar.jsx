@@ -9,18 +9,6 @@ function Sidebar() {
     },
 
     {
-      name: 'School Profile',
-      path: '/school-profile',
-      icon: '🏫',
-    },
-
-    {
-      name: 'Classes',
-      path: '/classes',
-      icon: '🏫',
-    },
-
-    {
       name: 'Students',
       path: '/students',
       icon: '👨‍🎓',

@@ -1,126 +1,98 @@
 import { useNavigate } from 'react-router-dom'
 
 function General() {
-
   const navigate = useNavigate()
 
   const modules = [
-
     {
       icon: '🏫',
       title: 'School Profile',
-      path: '/school-profile'
-    },
-
-    {
-      icon: '📅',
-      title: 'Academic Year',
-      path: '/academic-year'
+      description: 'School information & branding',
+      path: '/school-profile',
     },
 
     {
       icon: '🏛️',
-      title: 'Classes',
-      path: '/classes'
+      title: 'Classes & Sections',
+      description: 'Manage classes and sections',
+      path: '/classes',
+    },
+
+    {
+      icon: '📅',
+      title: 'Academic Session',
+      //description: '2025-26, 2026-27',
+      path: '/academic-session',
     },
 
     {
       icon: '📚',
-      title: 'Sections',
-      path: '/sections'
+      title: 'Subjects',
+      description: 'Subject master setup',
+      path: '/subjects',
     },
 
     {
-      icon: '👤',
-      title: 'User Management',
-      path: '/users'
+      icon: '👥',
+      title: 'Users',
+      description: 'User accounts & access',
+      path: '/users',
     },
 
     {
       icon: '🔐',
       title: 'Roles & Permissions',
-      path: '/roles'
+      description: 'Access control',
+      path: '/roles',
     },
-
-    {
-      icon: '📧',
-      title: 'Email Settings',
-      path: '/email-settings'
-    },
-
-    {
-      icon: '📱',
-      title: 'SMS Settings',
-      path: '/sms-settings'
-    },
-
-    {
-      icon: '☁️',
-      title: 'Backup & Restore',
-      path: '/backup'
-    },
-
-    {
-      icon: '⚙️',
-      title: 'System Settings',
-      path: '/settings'
-    }
-
   ]
 
   return (
-
     <div className="min-h-screen bg-slate-100 p-8">
 
       <div className="mb-10">
-
         <h1 className="text-4xl font-bold text-slate-800">
-          ⚙️ General Administration
+          ⚙️ Master Settings
         </h1>
 
         <p className="text-gray-500 mt-2">
-          Configure School ERP Master Data & Settings
+          Configure core School ERP data
         </p>
-
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
 
         {modules.map((module) => (
-
           <div
             key={module.title}
             onClick={() => navigate(module.path)}
             className="
               bg-white
               rounded-3xl
-              shadow-lg
-              hover:shadow-2xl
-              hover:-translate-y-2
+              shadow-md
+              hover:shadow-xl
+              hover:-translate-y-1
               transition-all
-              duration-300
               cursor-pointer
-              p-8
-              text-center
+              p-6
             "
           >
-
-            <div className="text-6xl mb-4">
+            <div className="text-5xl mb-4">
               {module.icon}
             </div>
 
-            <h2 className="font-bold text-lg text-slate-800">
+            <h2 className="text-xl font-bold text-slate-800">
               {module.title}
             </h2>
 
+            <p className="text-gray-500 mt-2">
+              {module.description}
+            </p>
           </div>
-
         ))}
 
       </div>
-
     </div>
-
   )
 }
 

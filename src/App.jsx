@@ -27,6 +27,7 @@ import Students from './pages/Students'
 import Attendance from './pages/Attendance'
 import FacultyDashboard from './pages/FacultyDashboard'
 import General from './pages/General'
+import AcademicSession from './pages/AcademicSession'
 
 function App() {
   return (
@@ -151,6 +152,17 @@ function App() {
           </ProtectedRoute>
         }
       />
+
+      <Route
+        path="/academic-session"
+        element={
+          <ProtectedRoute>
+            <Layout>
+              <AcademicSession />
+            </Layout>
+          </ProtectedRoute>
+        }
+    />
 
       {/* 404 */}
 

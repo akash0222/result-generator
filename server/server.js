@@ -16,6 +16,7 @@ import studentRoutes from './routes/studentRoutes.js'
 
 import schoolProfileRoutes from './routes/schoolProfileRoutes.js'
 import classRoutes from './routes/classRoutes.js'
+import academicSessionRoutes from './routes/academicSessionRoutes.js'
 
 // FUTURE MODULES (PHASE 2+)
 
@@ -94,6 +95,10 @@ app.use(
   classRoutes
 )
 
+app.use(
+  '/api/academic-sessions',
+  academicSessionRoutes
+)
 // ======================
 // FUTURE MODULES
 // ======================
