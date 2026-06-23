@@ -7,9 +7,9 @@ import {
 
 import axios from 'axios'
 
-import API_URL from '../config'
+import API_URL from '../../config'
 
-function RankList() {
+function CGPA() {
 
   const [students, setStudents] =
     useState([])
@@ -110,98 +110,136 @@ function RankList() {
     }
 
   // ======================
-  // CALCULATE SGPA
+  // SEMESTER SGPA
   // ======================
 
-  const calculateSGPA =
-    (roll) => {
+  const calculateSemesterSGPA = (
 
-      const studentMarks =
-        marksData.filter(
+    roll,
+    semester
 
-          (mark) =>
-            mark.roll === roll
+  ) => {
+
+    // SUBJECTS OF SEMESTER
+    const semesterSubjects =
+      subjects.filter(
+
+        (sub) =>
+
+          Number(sub.semester) ===
+          Number(semester)
+      )
+
+    let totalCredits = 0
+
+    let weightedPoints = 0
+
+    semesterSubjects.forEach((subject) => {
+
+      // FIND MARK
+      const mark =
+        marksData.find(
+
+          (m) =>
+
+            m.roll === roll &&
+
+            (
+              m.subject ===
+              subject.name ||
+
+              m.subject ===
+              subject.subject
+            )
         )
 
-      let totalCredits = 0
+      if (mark) {
 
-      let weightedPoints = 0
+        const credits =
+          Number(subject.credits)
 
-      studentMarks.forEach((mark) => {
-
-        const subject =
-          subjects.find(
-
-            (sub) =>
-
-              sub.name ===
-              mark.subject ||
-
-              sub.subject ===
-              mark.subject
+        const gradePoint =
+          getGradePoint(
+            mark.grade
           )
 
-        if (subject) {
+        totalCredits +=
+          credits
 
-          const credits =
-            Number(
-              subject.credits
-            )
+        weightedPoints +=
 
-          const gradePoint =
-            getGradePoint(
-              mark.grade
-            )
+          credits *
+          gradePoint
+      }
+    })
 
-          totalCredits +=
-            credits
+    if (totalCredits === 0) {
 
-          weightedPoints +=
+      return 0
+    }
 
-            credits *
-            gradePoint
+    return (
+
+      weightedPoints /
+      totalCredits
+    )
+  }
+
+  // ======================
+  // CALCULATE CGPA
+  // ======================
+
+  const calculateCGPA =
+    (roll) => {
+
+      // UNIQUE SEMESTERS
+      const semesters =
+
+        [...new Set(
+
+          subjects.map(
+
+            (subject) =>
+
+              Number(
+                subject.semester
+              )
+          )
+        )]
+
+      let totalSGPA = 0
+
+      let countedSemesters = 0
+
+      semesters.forEach((semester) => {
+
+        const sgpa =
+          calculateSemesterSGPA(
+
+            roll,
+            semester
+          )
+
+        if (sgpa > 0) {
+
+          totalSGPA += sgpa
+
+          countedSemesters++
         }
       })
 
-      if (totalCredits === 0) {
+      if (countedSemesters === 0) {
 
         return 0
       }
 
       return (
 
-        weightedPoints /
-        totalCredits
+        totalSGPA /
+        countedSemesters
 
       ).toFixed(2)
     }
-
-  // ======================
-  // RANK STUDENTS
-  // ======================
-
-  const rankedStudents =
-
-    [...students]
-
-      .map((student) => ({
-
-        ...student,
-
-        sgpa: Number(
-
-          calculateSGPA(
-            student.roll
-          )
-        )
-      }))
-
-      .sort(
-
-        (a, b) =>
-
-          b.sgpa - a.sgpa
-      )
 
   // ======================
   // LOADING
@@ -213,8 +251,8 @@ function RankList() {
 
       <div className="min-h-screen flex items-center justify-center">
 
-        <h1 className="text-3xl font-bold text-indigo-600">
-          Loading Rank List...
+        <h1 className="text-3xl font-bold text-pink-600">
+          Loading CGPA...
         </h1>
 
       </div>
@@ -229,8 +267,8 @@ function RankList() {
 
     <div className="min-h-screen bg-gray-100 p-6">
 
-      <h1 className="text-4xl font-bold text-yellow-600 mb-6">
-        Rank List
+      <h1 className="text-4xl font-bold text-pink-600 mb-6">
+        CGPA Results
       </h1>
 
       <div className="bg-white rounded-xl shadow overflow-hidden">
@@ -240,10 +278,6 @@ function RankList() {
           <thead className="bg-gray-200">
 
             <tr>
-
-              <th className="p-4 text-left">
-                Rank
-              </th>
 
               <th className="p-4 text-left">
                 Name
@@ -258,7 +292,7 @@ function RankList() {
               </th>
 
               <th className="p-4 text-left">
-                SGPA
+                CGPA
               </th>
 
             </tr>
@@ -267,43 +301,31 @@ function RankList() {
 
           <tbody>
 
-            {rankedStudents.map(
+            {students.map(
 
-              (student, index) => (
+              (student) => (
 
                 <tr
                   key={student._id}
                   className="border-t"
                 >
 
-                  <td className="p-4 font-bold text-yellow-600">
-
-                    #{index + 1}
-
-                  </td>
-
                   <td className="p-4">
-
                     {student.name}
-
                   </td>
 
                   <td className="p-4">
-
                     {student.roll}
-
                   </td>
 
                   <td className="p-4">
-
                     {student.course}
-
                   </td>
 
-                  <td className="p-4 font-bold text-indigo-600">
-
-                    {student.sgpa}
-
+                  <td className="p-4 font-bold text-pink-600">
+                    {calculateCGPA(
+                      student.roll
+                    )}
                   </td>
 
                 </tr>
@@ -320,4 +342,4 @@ function RankList() {
   )
 }
 
-export default RankList
+export default CGPA

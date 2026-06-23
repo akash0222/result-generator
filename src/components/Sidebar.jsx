@@ -1,23 +1,48 @@
 import { NavLink } from 'react-router-dom'
 
 function Sidebar() {
-
   const menus = [
-    { name: 'Dashboard', path: '/dashboard', icon: '🏠' },
-    { name: 'Students', path: '/students', icon: '👨‍🎓' },
-    { name: 'Subjects', path: '/subjects', icon: '📚' },
-    { name: 'Marks', path: '/marks', icon: '📝' },
-    { name: 'Results', path: '/results', icon: '📊' },
-    { name: 'CGPA', path: '/cgpa', icon: '🎯' },
-    { name: 'Rank List', path: '/ranklist', icon: '🏆' },
-    { name: 'Upload', path: '/upload', icon: '📤' },
-    { name: 'Attendance', path: '/attendance', icon: '📅' },
-    { name: 'Fees', path: '/fees', icon: '💰' },
-    { name: 'Library', path: '/library', icon: '📚' },
-    { name: 'Transport', path: '/transport', icon: '🚌' },
-    { name: 'School Profile', path: '/school-profile', icon: '🏫' },
-    { name: 'Settings', path: '/general', icon: '⚙️' },
-    { name:'Classes',path:'/classes',icon:'🏫'}
+    {
+      name: 'Dashboard',
+      path: '/dashboard',
+      icon: '🏠',
+    },
+
+    {
+      name: 'School Profile',
+      path: '/school-profile',
+      icon: '🏫',
+    },
+
+    {
+      name: 'Classes',
+      path: '/classes',
+      icon: '🏫',
+    },
+
+    {
+      name: 'Students',
+      path: '/students',
+      icon: '👨‍🎓',
+    },
+
+    {
+      name: 'Teachers',
+      path: '/faculty-dashboard',
+      icon: '👩‍🏫',
+    },
+
+    {
+      name: 'Attendance',
+      path: '/attendance',
+      icon: '📅',
+    },
+
+    {
+      name: 'Settings',
+      path: '/general',
+      icon: '⚙️',
+    },
   ]
 
   return (
@@ -30,7 +55,7 @@ function Sidebar() {
         </h1>
 
         <p className="text-slate-400 text-sm mt-1">
-          Result Management System
+          School Management System
         </p>
 
       </div>
@@ -38,7 +63,6 @@ function Sidebar() {
       <div className="p-4">
 
         {menus.map((menu) => (
-
           <NavLink
             key={menu.path}
             to={menu.path}
@@ -64,16 +88,13 @@ function Sidebar() {
               {menu.icon}
             </span>
 
-            <span>
+            <span className="font-medium">
               {menu.name}
             </span>
-
           </NavLink>
-
         ))}
 
       </div>
-
     </div>
   )
 }

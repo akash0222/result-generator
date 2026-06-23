@@ -9,86 +9,59 @@ import ProtectedRoute from './components/ProtectedRoute'
 import RoleProtectedRoute from './components/RoleProtectedRoute'
 
 // =========================
-// ADMIN PAGES
+// AUTH
 // =========================
 
 import Login from './pages/Login'
+import StudentLogin from './pages/StudentLogin'
+import FacultyLogin from './pages/FacultyLogin'
+
+// =========================
+// CORE SCHOOL ERP MODULES
+// =========================
+
 import Dashboard from './pages/Dashboard'
-import Students from './pages/Students'
-import Subjects from './pages/Subjects'
-import Marks from './pages/Marks'
-import Results from './pages/Results'
-import RankList from './pages/RankList'
-import CGPA from './pages/CGPA'
-import Upload from './pages/Upload'
-import PublishResults from './pages/PublishResults'
-import Transcript from './pages/Transcript'
-import Attendance from './pages/Attendance'
-import Fees from './pages/Fees'
-import Library from './pages/Library'
-import Transport from './pages/Transport'
-import General from './pages/General'
 import SchoolProfile from './pages/SchoolProfile'
 import Classes from './pages/Classes'
-
-// =========================
-// STUDENT PAGES
-// =========================
-
-import StudentLogin from './pages/StudentLogin'
-import StudentDashboard from './pages/StudentDashboard'
-
-// =========================
-// FACULTY PAGES
-// =========================
-
-import FacultyLogin from './pages/FacultyLogin'
+import Students from './pages/Students'
+import Attendance from './pages/Attendance'
 import FacultyDashboard from './pages/FacultyDashboard'
+import General from './pages/General'
 
 function App() {
   return (
     <Routes>
 
-      {/* DEFAULT */}
+      {/* HOME */}
 
       <Route
         path="/"
-        element={<Navigate to="/login" replace />}
+        element={
+          <Navigate
+            to="/login"
+            replace
+          />
+        }
       />
 
       {/* AUTH */}
 
-      <Route path="/login" element={<Login />} />
-      <Route path="/student-login" element={<StudentLogin />} />
-      <Route path="/faculty-login" element={<FacultyLogin />} />
-
-      {/* STUDENT */}
-
       <Route
-        path="/student-dashboard"
-        element={
-          <ProtectedRoute>
-            <Layout>
-              <StudentDashboard />
-            </Layout>
-          </ProtectedRoute>
-        }
+        path="/login"
+        element={<Login />}
       />
 
-      {/* FACULTY */}
-
       <Route
-        path="/faculty-dashboard"
-        element={
-          <RoleProtectedRoute role="faculty">
-            <Layout>
-              <FacultyDashboard />
-            </Layout>
-          </RoleProtectedRoute>
-        }
+        path="/student-login"
+        element={<StudentLogin />}
       />
 
-      {/* ADMIN */}
+      <Route
+        path="/faculty-login"
+        element={<FacultyLogin />}
+      />
+
+      {/* DASHBOARD */}
 
       <Route
         path="/dashboard"
@@ -101,170 +74,7 @@ function App() {
         }
       />
 
-      <Route
-        path="/students"
-        element={
-          <ProtectedRoute>
-            <Layout>
-              <Students />
-            </Layout>
-          </ProtectedRoute>
-        }
-      />
-
-      <Route
-        path="/subjects"
-        element={
-          <ProtectedRoute>
-            <Layout>
-              <Subjects />
-            </Layout>
-          </ProtectedRoute>
-        }
-      />
-
-      <Route
-        path="/marks"
-        element={
-          <ProtectedRoute>
-            <Layout>
-              <Marks />
-            </Layout>
-          </ProtectedRoute>
-        }
-      />
-
-      <Route
-        path="/results"
-        element={
-          <ProtectedRoute>
-            <Layout>
-              <Results />
-            </Layout>
-          </ProtectedRoute>
-        }
-      />
-
-      <Route
-        path="/ranklist"
-        element={
-          <ProtectedRoute>
-            <Layout>
-              <RankList />
-            </Layout>
-          </ProtectedRoute>
-        }
-      />
-
-      <Route
-        path="/cgpa"
-        element={
-          <ProtectedRoute>
-            <Layout>
-              <CGPA />
-            </Layout>
-          </ProtectedRoute>
-        }
-      />
-
-      <Route
-        path="/upload"
-        element={
-          <ProtectedRoute>
-            <Layout>
-              <Upload />
-            </Layout>
-          </ProtectedRoute>
-        }
-      />
-
-      <Route
-        path="/transcript"
-        element={
-          <ProtectedRoute>
-            <Layout>
-              <Transcript />
-            </Layout>
-          </ProtectedRoute>
-        }
-      />
-
-      <Route
-        path="/classes"
-        element={
-          <ProtectedRoute>
-          <Layout>
-          <Classes/>
-          </Layout>
-          </ProtectedRoute>
-        }
-      />
-
-      <Route
-        path="/publish-results"
-        element={
-          <ProtectedRoute>
-            <Layout>
-              <PublishResults />
-            </Layout>
-          </ProtectedRoute>
-        }
-      />
-
-      <Route
-        path="/attendance"
-        element={
-          <ProtectedRoute>
-            <Layout>
-              <Attendance />
-            </Layout>
-          </ProtectedRoute>
-        }
-      />
-
-      <Route
-        path="/fees"
-        element={
-          <ProtectedRoute>
-            <Layout>
-              <Fees />
-            </Layout>
-          </ProtectedRoute>
-        }
-      />
-
-      <Route
-        path="/library"
-        element={
-          <ProtectedRoute>
-            <Layout>
-              <Library />
-            </Layout>
-          </ProtectedRoute>
-        }
-      />
-
-      <Route
-        path="/transport"
-        element={
-          <ProtectedRoute>
-            <Layout>
-              <Transport />
-            </Layout>
-          </ProtectedRoute>
-        }
-      />
-
-      <Route
-        path="/general"
-        element={
-          <ProtectedRoute>
-            <Layout>
-              <General />
-            </Layout>
-          </ProtectedRoute>
-        }
-      />
+      {/* SCHOOL PROFILE */}
 
       <Route
         path="/school-profile"
@@ -277,11 +87,81 @@ function App() {
         }
       />
 
+      {/* CLASSES */}
+
+      <Route
+        path="/classes"
+        element={
+          <ProtectedRoute>
+            <Layout>
+              <Classes />
+            </Layout>
+          </ProtectedRoute>
+        }
+      />
+
+      {/* STUDENTS */}
+
+      <Route
+        path="/students"
+        element={
+          <ProtectedRoute>
+            <Layout>
+              <Students />
+            </Layout>
+          </ProtectedRoute>
+        }
+      />
+
+      {/* TEACHERS */}
+
+      <Route
+        path="/faculty-dashboard"
+        element={
+          <RoleProtectedRoute role="faculty">
+            <Layout>
+              <FacultyDashboard />
+            </Layout>
+          </RoleProtectedRoute>
+        }
+      />
+
+      {/* ATTENDANCE */}
+
+      <Route
+        path="/attendance"
+        element={
+          <ProtectedRoute>
+            <Layout>
+              <Attendance />
+            </Layout>
+          </ProtectedRoute>
+        }
+      />
+
+      {/* SETTINGS */}
+
+      <Route
+        path="/general"
+        element={
+          <ProtectedRoute>
+            <Layout>
+              <General />
+            </Layout>
+          </ProtectedRoute>
+        }
+      />
+
       {/* 404 */}
 
       <Route
         path="*"
-        element={<Navigate to="/dashboard" replace />}
+        element={
+          <Navigate
+            to="/dashboard"
+            replace
+          />
+        }
       />
 
     </Routes>

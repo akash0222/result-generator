@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import * as XLSX from 'xlsx'
-import API from '../utils/axios'
+import API from '../../utils/axios'
 
 function UploadMarks() {
 

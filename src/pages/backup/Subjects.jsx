@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import API from '../utils/axios'
+import API from '../../utils/axios'
 
 function Subjects() {
 

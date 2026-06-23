@@ -6,7 +6,7 @@ import * as XLSX from 'xlsx'
 
 import axios from 'axios'
 
-import API_URL from '../config'
+import API_URL from '../../config'
 
 function Upload() {
 
