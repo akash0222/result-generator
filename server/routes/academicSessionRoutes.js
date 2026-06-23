@@ -4,6 +4,7 @@ import {
   getSessions,
   createSession,
   deleteSession,
+  setActiveSession,
 } from '../controllers/academicSessionController.js'
 
 import { protect } from '../middleware/authMiddleware.js'
@@ -20,6 +21,12 @@ router.post(
   '/',
   protect,
   createSession
+)
+
+router.put(
+  '/active/:id',
+  protect,
+  setActiveSession
 )
 
 router.delete(
